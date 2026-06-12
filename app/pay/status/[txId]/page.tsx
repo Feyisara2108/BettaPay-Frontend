@@ -51,10 +51,10 @@ export default function PaymentStatusPage() {
               className="flex flex-col items-center justify-center space-y-6 text-center"
             >
               <div className="relative">
-                <div className="w-24 h-24 rounded-full border-4 border-brand-accent/20 border-t-brand-accent animate-spin" />
+                <div className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-brand-surface border border-border flex items-center justify-center shadow-lg">
-                    <Loader2 className="w-6 h-6 text-brand-accent animate-spin" />
+                  <div className="w-16 h-16 rounded-full bg-card border border-border flex items-center justify-center shadow-lg">
+                    <Loader2 className="w-6 h-6 text-primary animate-spin" />
                   </div>
                 </div>
               </div>
@@ -72,16 +72,16 @@ export default function PaymentStatusPage() {
               animate={{ opacity: 1, y: 0 }}
               className="w-full"
             >
-              <Card className="border-border/50 bg-brand-surface overflow-hidden">
-                <div className="h-2 bg-brand-success w-full" />
+              <Card className="border bg-card shadow-sm rounded-xl overflow-hidden">
+                <div className="h-2 bg-green-500 w-full" />
                 <CardContent className="pt-8 pb-8 px-6 flex flex-col items-center text-center space-y-6">
                   <motion.div 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", bounce: 0.5, delay: 0.2 }}
-                    className="w-20 h-20 rounded-full bg-brand-success/10 border-2 border-brand-success flex items-center justify-center"
+                    className="w-20 h-20 rounded-full bg-green-500/10 border-2 border-green-500 flex items-center justify-center"
                   >
-                    <Check className="w-10 h-10 text-brand-success" />
+                    <Check className="w-10 h-10 text-green-500" />
                   </motion.div>
                   
                   <div>
@@ -89,18 +89,18 @@ export default function PaymentStatusPage() {
                     <p className="text-muted-foreground mt-1">To {mockData.merchantName}</p>
                   </div>
 
-                  <div className="text-4xl font-bold text-brand-text-primary">
+                  <div className="text-4xl font-bold text-foreground">
                     <CurrencyDisplay amount={mockData.amount} currency={mockData.currency} />
                   </div>
 
-                  <div className="w-full bg-background/50 rounded-lg p-4 space-y-3 text-sm border border-border/50 text-left">
+                  <div className="w-full bg-transparent rounded-lg p-4 space-y-3 text-sm border border-border text-left">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Transaction ID</span>
                       <span className="font-mono">{truncateAddress(txId)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Network Hash</span>
-                      <a href="#" className="font-mono text-brand-accent hover:underline flex items-center gap-1">
+                      <a href="#" className="font-mono text-primary hover:underline flex items-center gap-1">
                         {truncateAddress(mockData.txHash)}
                         <ExternalLink className="w-3 h-3" />
                       </a>
@@ -122,16 +122,16 @@ export default function PaymentStatusPage() {
               animate={{ opacity: 1, y: 0 }}
               className="w-full"
             >
-              <Card className="border-border/50 bg-brand-surface overflow-hidden">
-                <div className="h-2 bg-brand-error w-full" />
+              <Card className="border bg-card shadow-sm rounded-xl overflow-hidden">
+                <div className="h-2 bg-destructive w-full" />
                 <CardContent className="pt-8 pb-8 px-6 flex flex-col items-center text-center space-y-6">
                   <motion.div 
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: "spring", bounce: 0.5 }}
-                    className="w-20 h-20 rounded-full bg-brand-error/10 border-2 border-brand-error flex items-center justify-center"
+                    className="w-20 h-20 rounded-full bg-destructive/10 border-2 border-destructive flex items-center justify-center"
                   >
-                    <X className="w-10 h-10 text-brand-error" />
+                    <X className="w-10 h-10 text-destructive" />
                   </motion.div>
                   
                   <div>

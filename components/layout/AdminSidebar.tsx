@@ -31,10 +31,10 @@ export const AdminSidebar = () => {
     <div className="flex h-full w-64 flex-col bg-sidebar border-r border-sidebar-border hidden md:flex">
       <div className="p-6">
         <Link href="/overview" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-brand-error flex items-center justify-center">
-            <ShieldCheck className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-bold text-xl tracking-tight text-sidebar-foreground">BettaPay <span className="text-brand-error text-sm font-normal ml-1">ADMIN</span></span>
+          <span className="font-bold text-xl tracking-tight text-sidebar-foreground">BettaPay <span className="text-primary text-sm font-normal ml-1">ADMIN</span></span>
         </Link>
       </div>
 
@@ -48,10 +48,10 @@ export const AdminSidebar = () => {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
+                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors border-l-2",
                 isActive 
-                  ? "bg-brand-surface-alt text-brand-text-primary border-l-2 border-brand-error rounded-l-none" 
-                  : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                  ? "border-primary bg-sidebar-accent/30 text-sidebar-foreground" 
+                  : "border-transparent text-muted-foreground hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
               )}
             >
               <Icon className="w-5 h-5" />
@@ -63,12 +63,12 @@ export const AdminSidebar = () => {
 
       <div className="p-4 border-t border-sidebar-border">
         <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-8 h-8 rounded-full bg-brand-surface flex items-center justify-center text-xs font-bold text-brand-text-primary border border-brand-error/30">
+          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-secondary-foreground border border-border/30">
             AD
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-medium text-sidebar-foreground">System Admin</span>
-            <span className="text-xs text-brand-text-muted flex items-center gap-1">
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
               Superuser
             </span>
           </div>

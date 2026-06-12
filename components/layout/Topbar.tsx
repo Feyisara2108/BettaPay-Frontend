@@ -39,13 +39,13 @@ export const Topbar = ({ onMenuClick, title }: TopbarProps) => {
           <Input 
             type="search" 
             placeholder="Search transactions, payment links..." 
-            className="pl-9 bg-muted/40 border-border/50 focus-visible:ring-brand-accent rounded-full h-9"
+            className="pl-9 bg-muted/40 border-border/50 focus-visible:ring-primary rounded-full h-9"
           />
         </div>
 
         <Button variant="ghost" size="icon" className="relative text-muted-foreground">
           <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-brand-error border-2 border-background"></span>
+          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive border-2 border-background"></span>
         </Button>
 
         <DropdownMenu>
@@ -53,7 +53,7 @@ export const Topbar = ({ onMenuClick, title }: TopbarProps) => {
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8 border border-border">
                 <AvatarImage src="/avatars/01.png" alt="@merchant" />
-                <AvatarFallback className="bg-brand-accent/20 text-brand-accent">JD</AvatarFallback>
+                <AvatarFallback className="bg-primary/20 text-primary">JD</AvatarFallback>
               </Avatar>
             </Button>
           } />
@@ -70,7 +70,7 @@ export const Topbar = ({ onMenuClick, title }: TopbarProps) => {
             <DropdownMenuItem>Profile Settings</DropdownMenuItem>
             <DropdownMenuItem>API Keys</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-brand-error focus:text-brand-error focus:bg-brand-error/10">
+            <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

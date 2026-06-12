@@ -33,8 +33,8 @@ export const MerchantSidebar = () => {
     <div className="flex h-full w-64 flex-col bg-sidebar border-r border-sidebar-border hidden md:flex">
       <div className="p-6">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-brand-accent flex items-center justify-center">
-            <ShieldCheck className="w-5 h-5 text-brand-primary" />
+          <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5 text-primary-foreground" />
           </div>
           <span className="font-bold text-xl tracking-tight text-sidebar-foreground">BettaPay</span>
         </Link>
@@ -50,10 +50,10 @@ export const MerchantSidebar = () => {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
+                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors border-l-2",
                 isActive 
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                  : "text-muted-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
+                  ? "border-primary bg-sidebar-accent/30 text-sidebar-foreground" 
+                  : "border-transparent text-muted-foreground hover:bg-sidebar-accent/20 hover:text-sidebar-foreground"
               )}
             >
               <Icon className="w-5 h-5" />
@@ -65,13 +65,13 @@ export const MerchantSidebar = () => {
 
       <div className="p-4 border-t border-sidebar-border">
         <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-8 h-8 rounded-full bg-brand-surface-alt flex items-center justify-center text-xs font-bold text-brand-text-primary">
+          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-xs font-bold text-secondary-foreground">
             MC
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-medium text-sidebar-foreground">Merchant Corp</span>
-            <span className="text-xs text-brand-success flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-brand-success"></span>
+            <span className="text-xs text-green-500 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
               Verified
             </span>
           </div>

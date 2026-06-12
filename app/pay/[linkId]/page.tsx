@@ -59,8 +59,8 @@ export default function PaymentLinkPage() {
         
         {/* Merchant Branding Header */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-brand-surface border-2 border-brand-accent flex items-center justify-center mb-4 shadow-[0_0_15px_rgba(240,165,0,0.2)]">
-            <ShieldCheck className="w-8 h-8 text-brand-accent" />
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+            <ShieldCheck className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-xl font-semibold">{linkData.merchantName}</h1>
           <p className="text-muted-foreground text-sm">{linkData.label}</p>
@@ -74,14 +74,14 @@ export default function PaymentLinkPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
             >
-              <Card className="border-border/50 bg-brand-surface shadow-xl">
+              <Card className="border bg-card shadow-sm rounded-xl">
                 <CardHeader>
                   <h2 className="text-lg font-medium text-center">Payment Details</h2>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {linkData.type === 'fixed' ? (
                     <div className="text-center py-6">
-                      <div className="text-4xl font-bold text-brand-text-primary">
+                      <div className="text-4xl font-bold text-foreground">
                         <CurrencyDisplay amount={linkData.fixedAmount} currency={linkData.currency} />
                       </div>
                       <p className="text-sm text-muted-foreground mt-2">
@@ -96,7 +96,7 @@ export default function PaymentLinkPage() {
                         <Input 
                           type="number" 
                           placeholder="0.00" 
-                          className="pl-8 text-lg h-14 bg-background/50 border-border/50 focus-visible:ring-brand-accent"
+                          className="pl-8 text-lg h-14 bg-transparent border-input focus-visible:ring-primary"
                           value={amount}
                           onChange={(e) => setAmount(e.target.value)}
                         />
@@ -105,7 +105,7 @@ export default function PaymentLinkPage() {
                   )}
                 </CardContent>
                 <CardFooter className="flex flex-col gap-3">
-                  <Button className="w-full h-12 text-md" onClick={handleContinue}>
+                  <Button className="w-full h-12 text-md font-medium" onClick={handleContinue}>
                     Continue
                   </Button>
                   <Button variant="ghost" className="w-full h-12 text-muted-foreground">
@@ -124,12 +124,12 @@ export default function PaymentLinkPage() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
             >
-              <Card className="border-border/50 bg-brand-surface shadow-xl">
+              <Card className="border bg-card shadow-sm rounded-xl">
                 <CardHeader>
                   <h2 className="text-lg font-medium text-center">Review Payment</h2>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="bg-background/50 rounded-xl p-4 space-y-3 border border-border/50">
+                  <div className="bg-transparent rounded-xl p-4 space-y-3 border border-border">
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Amount</span>
                       <span className="font-semibold"><CurrencyDisplay amount={Number(amount)} currency={linkData.currency} /></span>
@@ -141,19 +141,19 @@ export default function PaymentLinkPage() {
                     <div className="h-px bg-border/50 w-full" />
                     <div className="flex justify-between items-center text-lg">
                       <span className="text-muted-foreground">Total</span>
-                      <span className="font-bold text-brand-accent"><CurrencyDisplay amount={Number(amount)} currency={linkData.currency} /></span>
+                      <span className="font-bold text-primary"><CurrencyDisplay amount={Number(amount)} currency={linkData.currency} /></span>
                     </div>
                   </div>
 
                   {isConnected && address && (
                     <div className="text-sm text-center text-muted-foreground">
-                      Sending from: <span className="font-mono text-brand-text-primary">{address.substring(0, 6)}...{address.substring(address.length - 4)}</span>
+                      Sending from: <span className="font-mono text-foreground">{address.substring(0, 6)}...{address.substring(address.length - 4)}</span>
                     </div>
                   )}
                 </CardContent>
                 <CardFooter className="flex flex-col gap-3">
                   <Button 
-                    className="w-full h-12 text-md group" 
+                    className="w-full h-12 text-md font-medium group" 
                     onClick={handlePay}
                     disabled={isProcessing}
                   >
@@ -175,7 +175,7 @@ export default function PaymentLinkPage() {
         </AnimatePresence>
 
         <div className="mt-8 text-center text-xs text-muted-foreground">
-          Powered by <span className="font-semibold text-brand-text-primary">BettaPay</span>
+          Powered by <span className="font-semibold text-foreground">BettaPay</span>
         </div>
       </div>
     </div>

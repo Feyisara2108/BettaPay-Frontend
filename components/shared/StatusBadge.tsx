@@ -15,22 +15,22 @@ export const StatusBadge = ({ status, className }: StatusBadgeProps) => {
     [PAYMENT_STATUS.SUCCESS]: {
       label: 'Success',
       icon: CheckCircle2,
-      className: 'bg-brand-success/10 text-brand-success hover:bg-brand-success/20 border-brand-success/20',
+      className: 'bg-green-500/10 text-green-500 hover:bg-green-500/20 border-green-500/20',
     },
     [PAYMENT_STATUS.PENDING]: {
       label: 'Pending',
       icon: Clock,
-      className: 'bg-brand-warning/10 text-brand-warning hover:bg-brand-warning/20 border-brand-warning/20',
+      className: 'bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 border-yellow-500/20',
     },
     [PAYMENT_STATUS.PROCESSING]: {
       label: 'Processing',
       icon: Loader2,
-      className: 'bg-brand-accent/10 text-brand-accent hover:bg-brand-accent/20 border-brand-accent/20',
+      className: 'bg-primary/10 text-primary hover:bg-primary/20 border-primary/20',
     },
     [PAYMENT_STATUS.FAILED]: {
       label: 'Failed',
       icon: XCircle,
-      className: 'bg-brand-error/10 text-brand-error hover:bg-brand-error/20 border-brand-error/20',
+      className: 'bg-destructive/10 text-destructive hover:bg-destructive/20 border-destructive/20',
     },
   };
 

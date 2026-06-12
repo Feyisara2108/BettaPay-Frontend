@@ -26,58 +26,58 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-brand-surface border-border/50 shadow-sm">
+        <Card className="bg-card border shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Volume (30d)</CardTitle>
-            <Activity className="h-4 w-4 text-brand-accent" />
+            <Activity className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-brand-text-primary">
+            <div className="text-2xl font-bold text-foreground">
               <CurrencyDisplay amount={45231.89} />
             </div>
-            <p className="text-xs text-brand-success flex items-center mt-1">
+            <p className="text-xs text-green-500 flex items-center mt-1">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               +20.1% from last month
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-brand-surface border-border/50 shadow-sm">
+        <Card className="bg-card border shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Active Payment Links</CardTitle>
-            <CreditCard className="h-4 w-4 text-brand-accent" />
+            <CreditCard className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-brand-text-primary">12</div>
+            <div className="text-2xl font-bold text-foreground">12</div>
             <p className="text-xs text-muted-foreground mt-1">
               +3 new links this week
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-brand-surface border-border/50 shadow-sm">
+        <Card className="bg-card border shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Available to Settle</CardTitle>
-            <Wallet className="h-4 w-4 text-brand-accent" />
+            <Wallet className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-brand-text-primary">
+            <div className="text-2xl font-bold text-foreground">
               <CurrencyDisplay amount={12450.00} />
             </div>
-            <p className="text-xs text-brand-error flex items-center mt-1">
+            <p className="text-xs text-destructive flex items-center mt-1">
               <ArrowDownRight className="h-3 w-3 mr-1" />
               Pending NGN conversion
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-brand-surface border-border/50 shadow-sm">
+        <Card className="bg-card border shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Current FX Rate</CardTitle>
-            <RefreshCcw className="h-4 w-4 text-brand-accent" />
+            <RefreshCcw className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-brand-text-primary">₦1,550 / USDC</div>
+            <div className="text-2xl font-bold text-foreground">₦1,550 / USDC</div>
             <p className="text-xs text-muted-foreground mt-1">
               Updated 5 mins ago
             </p>
@@ -86,7 +86,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-7">
-        <Card className="col-span-4 bg-brand-surface border-border/50 shadow-sm">
+        <Card className="col-span-4 bg-card border shadow-sm">
           <CardHeader>
             <CardTitle>Revenue Over Time</CardTitle>
           </CardHeader>
@@ -96,32 +96,32 @@ export default function DashboardPage() {
                 <AreaChart data={mockChartData}>
                   <defs>
                     <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#F0A500" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#F0A500" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <XAxis 
                     dataKey="name" 
-                    stroke="#94A3B8" 
+                    stroke="hsl(var(--muted-foreground))" 
                     fontSize={12} 
                     tickLine={false} 
                     axisLine={false} 
                   />
                   <YAxis 
-                    stroke="#94A3B8" 
+                    stroke="hsl(var(--muted-foreground))" 
                     fontSize={12} 
                     tickLine={false} 
                     axisLine={false} 
                     tickFormatter={(value) => `$${value}`} 
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: '#111D35', borderColor: '#1E2D4A', color: '#F0F4FF' }}
-                    itemStyle={{ color: '#F0A500' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--foreground))' }}
+                    itemStyle={{ color: 'hsl(var(--primary))' }}
                   />
                   <Area 
                     type="monotone" 
                     dataKey="total" 
-                    stroke="#F0A500" 
+                    stroke="hsl(var(--primary))" 
                     strokeWidth={2}
                     fillOpacity={1} 
                     fill="url(#colorTotal)" 
@@ -132,7 +132,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 bg-brand-surface border-border/50 shadow-sm">
+        <Card className="col-span-3 bg-card border shadow-sm">
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
           </CardHeader>
@@ -140,18 +140,18 @@ export default function DashboardPage() {
             <div className="space-y-6">
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="flex items-center">
-                  <div className="w-9 h-9 rounded-full bg-brand-surface-alt flex items-center justify-center mr-4">
+                  <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center mr-4">
                     <span className="text-xs text-muted-foreground font-mono">GBX{i}</span>
                   </div>
                   <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-brand-text-primary">
+                    <p className="text-sm font-medium leading-none text-foreground">
                       Payment Received
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {i} hour{i > 1 ? 's' : ''} ago
                     </p>
                   </div>
-                  <div className="text-sm font-medium text-brand-success">
+                  <div className="text-sm font-medium text-green-500">
                     +<CurrencyDisplay amount={150 * i} showDecimals={false} />
                   </div>
                 </div>

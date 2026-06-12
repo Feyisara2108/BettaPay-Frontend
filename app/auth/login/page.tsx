@@ -32,16 +32,23 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       const isMockAdmin = data.email.includes('admin');
       const role = isMockAdmin ? 'admin' : 'merchant';
+      
+      // Fetch the seeded merchant from the backend
+      const { apiClient } = await import('@/lib/api/axios');
+      const merchantId = 'GCCHHKNI7GRA5QWC7RCTT3OHO7SKAUMKQA6IBWEQEO2SXI3GF376UHDD';
+      const response = await apiClient.get(`/api/merchants/${merchantId}`);
+      
+      if (!response.data || response.data.error) {
+        throw new Error('Merchant not found');
+      }
+
       const mockToken = 'mock_jwt_token_12345';
       const mockUser = {
-        id: 'u_1',
+        id: response.data.id,
         email: data.email,
-        name: isMockAdmin ? 'System Admin' : 'Merchant User',
+        name: response.data.name,
         role,
       };
 
@@ -55,7 +62,7 @@ export default function LoginPage() {
       router.push(role === 'admin' ? '/overview' : '/dashboard');
     } catch (err) {
       console.error(err);
-      toast.error('Invalid credentials');
+      toast.error('Failed to authenticate with backend');
     } finally {
       setIsLoading(false);
     }

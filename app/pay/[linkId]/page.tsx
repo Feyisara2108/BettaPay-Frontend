@@ -10,6 +10,9 @@ import { useWalletStore } from '@/lib/store/walletStore';
 import { CurrencyDisplay } from '@/components/shared/CurrencyDisplay';
 import { ShieldCheck, ArrowRight, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
+import { Contract, SorobanRpc, TransactionBuilder, Networks, nativeToScVal } from '@stellar/stellar-sdk';
+import { signWithFreighter } from '@/lib/stellar/freighter';
+import { apiClient } from '@/lib/api/axios';
 
 export default function PaymentLinkPage() {
   const router = useRouter();
@@ -42,15 +45,65 @@ export default function PaymentLinkPage() {
       if (!useWalletStore.getState().isConnected) return;
     }
 
+    const payerAddress = useWalletStore.getState().address;
+    if (!payerAddress) return;
+
     setIsProcessing(true);
     
-    // Simulate Freighter signing and network confirmation
-    setTimeout(() => {
+    try {
+      // 1. Generate Payment Reference (32 bytes hex string)
+      const referenceBytes = new Uint8Array(32);
+      crypto.getRandomValues(referenceBytes);
+      const referenceHex = Array.from(referenceBytes).map(b => b.toString(16).padStart(2, '0')).join('');
+
+      // 2. Build Soroban Transaction
+      const server = new SorobanRpc.Server('https://soroban-testnet.stellar.org');
+      const account = await server.getAccount(payerAddress);
+      
+      const contractId = process.env.NEXT_PUBLIC_SETTLEMENT_CONTRACT_ID || 'CBGBGKJSUY7XYB6HWW4CVAU6MW2KD25FSF45E5KCP53TKUK374MBZNFB';
+      // Use the seeded admin as the merchant for this demo
+      const merchantAddress = 'GCCHHKNI7GRA5QWC7RCTT3OHO7SKAUMKQA6IBWEQEO2SXI3GF376UHDD';
+      
+      // Amount in stroops (1 USDC = 10^7 stroops)
+      const stroopAmount = BigInt(Math.floor(Number(amount) * 10_000_000));
+
+      const tx = new TransactionBuilder(account, { fee: '10000', networkPassphrase: Networks.TESTNET })
+        .addOperation(
+          new Contract(contractId).call(
+            'store_payment_reference',
+            nativeToScVal(merchantAddress, { type: 'address' }),
+            nativeToScVal(Buffer.from(referenceHex, 'hex')),
+            nativeToScVal(stroopAmount, { type: 'i128' })
+          )
+        )
+        .setTimeout(30)
+        .build();
+
+      const preparedTx = await server.prepareTransaction(tx);
+      
+      // 3. Sign with Freighter
+      const signedXdr = await signWithFreighter(preparedTx.toXDR());
+      if (!signedXdr) {
+        throw new Error('User cancelled signing or Freighter error');
+      }
+
+      // 4. Submit to Backend API (which will track it and indexer will pick it up)
+      const response = await apiClient.post('/api/payments', {
+        merchantId: merchantAddress,
+        payerId: payerAddress,
+        amount: Number(amount),
+        asset: linkData.currency,
+      });
+
+      // Redirect to status page with the backend payment ID
+      router.push(`/pay/status/${response.data.id}`);
+
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Payment failed');
+    } finally {
       setIsProcessing(false);
-      // Generate mock txId
-      const txId = 'tx_' + Math.random().toString(36).substr(2, 9);
-      router.push(`/pay/status/${txId}?status=success`);
-    }, 2000);
+    }
   };
 
   return (

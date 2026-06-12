@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Check, X, Loader2, ExternalLink, ArrowLeft } from 'lucide-react';
 import { CurrencyDisplay } from '@/components/shared/CurrencyDisplay';
 import { truncateAddress } from '@/lib/utils/format';
+import { apiClient } from '@/lib/api/axios';
 
 type Status = 'processing' | 'success' | 'failed';
 
@@ -20,22 +21,55 @@ export default function PaymentStatusPage() {
   const initialStatus = (searchParams.get('status') as Status) || 'processing';
   
   const [status, setStatus] = useState<Status>(initialStatus);
+  const [paymentData, setPaymentData] = useState<any>(null);
 
-  // Mock checking status
+  // Poll for status
   useEffect(() => {
-    if (status === 'processing') {
-      const timer = setTimeout(() => {
-        setStatus('success');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [status]);
+    let timer: NodeJS.Timeout;
 
-  const mockData = {
-    amount: 1500,
+    const checkStatus = async () => {
+      try {
+        const response = await apiClient.get(`/api/payments/${txId}`);
+        const payment = response.data;
+        
+        if (payment) {
+          setPaymentData(payment);
+          
+          if (payment.status === 'success') {
+            setStatus('success');
+            return;
+          } else if (payment.status === 'failed') {
+            setStatus('failed');
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch payment status', err);
+      }
+
+      // Continue polling if still processing
+      if (status === 'processing') {
+        timer = setTimeout(checkStatus, 3000);
+      }
+    };
+
+    if (status === 'processing') {
+      checkStatus();
+    }
+
+    return () => clearTimeout(timer);
+  }, [status, txId]);
+
+  const mockData = paymentData ? {
+    amount: Number(paymentData.amount),
+    currency: paymentData.asset || 'USDC',
+    merchantName: 'BettaPay Merchant LLC',
+    txHash: '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b' // Would come from indexer in prod
+  } : {
+    amount: 0,
     currency: 'USDC',
     merchantName: 'Merchant Corp',
-    txHash: '1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b'
+    txHash: '...'
   };
 
   return (

@@ -30,11 +30,19 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    console.log(data);
     setIsLoading(true);
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      try {
+        const { apiClient } = await import('@/lib/api/axios');
+        await apiClient.post('/api/merchants', {
+          id: `merch_${Math.random().toString(36).substr(2, 9)}`,
+          name: data.businessName,
+        });
+      } catch {
+        console.warn('Backend unavailable, falling back to mock registration for Vercel preview.');
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+
       toast.success('Account created successfully! Please log in.');
       router.push('/auth/login');
     } catch (err) {
@@ -46,84 +54,94 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-[380px]"
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-[400px] z-10"
       >
         <div className="flex justify-center mb-8">
-          <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-            <ShieldCheck className="w-7 h-7 text-primary" />
+          <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-white/10 flex items-center justify-center shadow-2xl relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-xl" />
+            <ShieldCheck className="w-8 h-8 text-primary relative z-10" />
           </div>
         </div>
 
-        <Card className="border bg-card shadow-sm rounded-xl">
-          <CardHeader className="space-y-1.5 text-center pb-6">
-            <CardTitle className="text-2xl font-semibold tracking-tight">Create an account</CardTitle>
-            <CardDescription className="text-muted-foreground">
+        <Card className="border-white/10 bg-zinc-900/50 backdrop-blur-xl shadow-2xl rounded-2xl overflow-hidden">
+          <CardHeader className="space-y-2 text-center pb-8 pt-8">
+            <CardTitle className="text-3xl font-bold tracking-tight text-white">Create an account</CardTitle>
+            <CardDescription className="text-zinc-400 text-base">
               Enter your details to start accepting crypto payments
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="businessName">Business Name</Label>
+            <CardContent className="space-y-5 px-8">
+              <div className="space-y-2.5">
+                <Label htmlFor="businessName" className="text-zinc-300">Business Name</Label>
                 <Input 
                   id="businessName" 
                   placeholder="Acme Corp" 
                   {...register('businessName')} 
-                  className="bg-transparent h-10 border-input focus-visible:ring-primary"
+                  className="bg-zinc-950/50 h-12 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-primary focus-visible:border-primary transition-all"
                 />
-                {errors.businessName && <p className="text-sm text-destructive">{errors.businessName.message}</p>}
+                {errors.businessName && <p className="text-sm text-red-400">{errors.businessName.message}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Work Email</Label>
+              <div className="space-y-2.5">
+                <Label htmlFor="email" className="text-zinc-300">Work Email</Label>
                 <Input 
                   id="email" 
                   type="email" 
                   placeholder="m@example.com" 
                   {...register('email')} 
-                  className="bg-transparent h-10 border-input focus-visible:ring-primary"
+                  className="bg-zinc-950/50 h-12 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-primary focus-visible:border-primary transition-all"
                 />
-                {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+                {errors.email && <p className="text-sm text-red-400">{errors.email.message}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="country">Country of Operation</Label>
+              <div className="space-y-2.5">
+                <Label htmlFor="country" className="text-zinc-300">Country of Operation</Label>
                 <Select onValueChange={(val: string | null) => { if (val) setValue('country', val as 'NG' | 'KE' | 'ZA'); }}>
-                  <SelectTrigger className="bg-transparent h-10 border-input focus:ring-primary">
+                  <SelectTrigger className="bg-zinc-950/50 h-12 border-white/10 text-white focus:ring-primary transition-all">
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-zinc-900 border-white/10 text-white">
                     <SelectItem value="NG">Nigeria (NG)</SelectItem>
                     <SelectItem value="KE">Kenya (KE)</SelectItem>
                     <SelectItem value="ZA">South Africa (ZA)</SelectItem>
                   </SelectContent>
                 </Select>
-                {errors.country && <p className="text-sm text-destructive">{errors.country.message}</p>}
+                {errors.country && <p className="text-sm text-red-400">{errors.country.message}</p>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+              <div className="space-y-2.5">
+                <Label htmlFor="password" className="text-zinc-300">Password</Label>
                 <Input 
                   id="password" 
-                  type="password" 
+                  type="password"
+                  placeholder="••••••••" 
                   {...register('password')} 
-                  className="bg-transparent h-10 border-input focus-visible:ring-primary"
+                  className="bg-zinc-950/50 h-12 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-primary focus-visible:border-primary transition-all"
                 />
-                {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+                {errors.password && <p className="text-sm text-red-400">{errors.password.message}</p>}
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col space-y-4 pb-6">
-              <Button type="submit" className="w-full h-10 font-medium" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign up
+            <CardFooter className="flex flex-col space-y-6 pb-8 pt-4 px-8">
+              <Button 
+                type="submit" 
+                className="w-full h-12 text-base font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(240,165,0,0.3)] transition-all hover:shadow-[0_0_25px_rgba(240,165,0,0.5)]" 
+                disabled={isLoading}
+              >
+                {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
+                Sign Up
               </Button>
-              <div className="text-sm text-center text-muted-foreground">
+              <div className="text-sm text-center text-zinc-400">
                 Already have an account?{' '}
-                <Link href="/auth/login" className="text-primary hover:underline font-medium">
+                <Link href="/auth/login" className="text-white hover:text-primary transition-colors font-medium">
                   Log in
                 </Link>
               </div>

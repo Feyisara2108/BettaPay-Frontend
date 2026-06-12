@@ -10,7 +10,7 @@ import { useWalletStore } from '@/lib/store/walletStore';
 import { CurrencyDisplay } from '@/components/shared/CurrencyDisplay';
 import { ShieldCheck, ArrowRight, QrCode } from 'lucide-react';
 import { toast } from 'sonner';
-import { Contract, SorobanRpc, TransactionBuilder, Networks, nativeToScVal } from '@stellar/stellar-sdk';
+import { Contract, rpc, TransactionBuilder, Networks, nativeToScVal } from '@stellar/stellar-sdk';
 import { signWithFreighter } from '@/lib/stellar/freighter';
 import { apiClient } from '@/lib/api/axios';
 
@@ -57,7 +57,7 @@ export default function PaymentLinkPage() {
       const referenceHex = Array.from(referenceBytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
       // 2. Build Soroban Transaction
-      const server = new SorobanRpc.Server('https://soroban-testnet.stellar.org');
+      const server = new rpc.Server('https://soroban-testnet.stellar.org');
       const account = await server.getAccount(payerAddress);
       
       const contractId = process.env.NEXT_PUBLIC_SETTLEMENT_CONTRACT_ID || 'CBGBGKJSUY7XYB6HWW4CVAU6MW2KD25FSF45E5KCP53TKUK374MBZNFB';
@@ -98,9 +98,10 @@ export default function PaymentLinkPage() {
       // Redirect to status page with the backend payment ID
       router.push(`/pay/status/${response.data.id}`);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      toast.error(error.message || 'Payment failed');
+      const errorMessage = error instanceof Error ? error.message : 'Payment failed';
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }

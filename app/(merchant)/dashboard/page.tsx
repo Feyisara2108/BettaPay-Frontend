@@ -1,161 +1,422 @@
 "use client";
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { CurrencyDisplay } from '@/components/shared/CurrencyDisplay';
-import { ArrowUpRight, ArrowDownRight, Wallet, Activity, CreditCard, RefreshCcw } from 'lucide-react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from 'recharts';
+import { StatusBadge } from '@/components/shared/StatusBadge';
+import {
+  ArrowUpRight,
+  ArrowDownRight,
+  Wallet,
+  Activity,
+  CreditCard,
+  RefreshCcw,
+  Plus,
+  Copy,
+  ExternalLink,
+  TrendingUp,
+  Zap,
+  ChevronRight,
+  BarChart3,
+  ArrowRight,
+} from 'lucide-react';
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+} from 'recharts';
+import { useAuthStore } from '@/lib/store/authStore';
+import Link from 'next/link';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const mockChartData = [
-  { name: 'Mon', total: 1200 },
-  { name: 'Tue', total: 2100 },
-  { name: 'Wed', total: 1800 },
-  { name: 'Thu', total: 3200 },
-  { name: 'Fri', total: 2800 },
-  { name: 'Sat', total: 4100 },
-  { name: 'Sun', total: 3800 },
+  { name: 'Mon', total: 1200, volume: 8400 },
+  { name: 'Tue', total: 2100, volume: 14700 },
+  { name: 'Wed', total: 1800, volume: 12600 },
+  { name: 'Thu', total: 3200, volume: 22400 },
+  { name: 'Fri', total: 2800, volume: 19600 },
+  { name: 'Sat', total: 4100, volume: 28700 },
+  { name: 'Sun', total: 3800, volume: 26600 },
 ];
 
+const mockTransactions = [
+  { id: 'tx_01', label: 'Consulting Retainer', address: 'GBX1...3F9A', amount: 750, status: 'completed', time: '2m ago' },
+  { id: 'tx_02', label: 'E-commerce Payment', address: 'GDR2...7K1B', amount: 45.5, status: 'completed', time: '18m ago' },
+  { id: 'tx_03', label: 'Invoice #1042', address: 'GBN3...2P8C', amount: 1200, status: 'pending', time: '1h ago' },
+  { id: 'tx_04', label: 'Subscription Fee', address: 'GCH4...9M4D', amount: 29, status: 'completed', time: '3h ago' },
+  { id: 'tx_05', label: 'Freelance Project', address: 'GDX5...1N5E', amount: 3500, status: 'failed', time: '5h ago' },
+];
+
+const mockPaymentLinks = [
+  { id: 'link_01', label: 'Consulting Retainer Q3', url: 'betta.pay/pay/link_01', clicks: 24, converted: 8 },
+  { id: 'link_02', label: 'E-commerce Checkout', url: 'betta.pay/pay/link_02', clicks: 112, converted: 47 },
+  { id: 'link_03', label: 'Donation Campaign', url: 'betta.pay/pay/link_03', clicks: 58, converted: 19 },
+];
+
+const PERIOD_OPTIONS = ['7D', '30D', '90D'] as const;
+type Period = typeof PERIOD_OPTIONS[number];
+
+// Custom Tooltip for recharts
+interface TooltipProps { active?: boolean; payload?: { value: number }[]; label?: string; }
+const ChartTooltip = ({ active, payload, label }: TooltipProps) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-lg text-sm">
+        <p className="font-semibold text-slate-700 mb-1">{label}</p>
+        <p className="text-amber-600 font-bold">${payload[0]?.value?.toLocaleString()}</p>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function DashboardPage() {
+  const { user } = useAuthStore();
+  const [activePeriod, setActivePeriod] = useState<Period>('7D');
+
+  const firstName = user?.name?.split(' ')[0] ?? 'Merchant';
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('Copied to clipboard');
+  };
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Overview</h1>
-        <p className="text-muted-foreground mt-1">
-          Here is what is happening with your BettaPay account today.
-        </p>
+    <div className="space-y-8 pb-8">
+
+      {/* ── Welcome Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold tracking-widest text-amber-500 uppercase mb-1">
+            Merchant Dashboard
+          </p>
+          <h1 className="text-3xl font-bold text-slate-900 leading-tight">
+            Good day, {firstName} 👋
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">
+            Here&apos;s what&apos;s happening with your BettaPay account today.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/payments">
+            <Button className="bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl h-10 px-4 text-sm shadow-sm shadow-amber-200 transition-all">
+              <Plus className="w-4 h-4 mr-2" />
+              New Payment Link
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-card border shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Volume (30d)</CardTitle>
-            <Activity className="h-4 w-4 text-primary" />
+      {/* ── KPI Stat Cards ── */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Card 1 */}
+        <Card className="relative overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-50/60 to-transparent pointer-events-none" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
+            <CardTitle className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              Total Volume (30d)
+            </CardTitle>
+            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+              <Activity className="h-4 w-4 text-amber-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
+          <CardContent className="relative">
+            <div className="text-2xl font-bold text-slate-900">
               <CurrencyDisplay amount={45231.89} />
             </div>
-            <p className="text-xs text-green-500 flex items-center mt-1">
+            <p className="text-xs text-emerald-600 flex items-center mt-1.5 font-medium">
               <ArrowUpRight className="h-3 w-3 mr-1" />
               +20.1% from last month
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-card border shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Payment Links</CardTitle>
-            <CreditCard className="h-4 w-4 text-primary" />
+        {/* Card 2 */}
+        <Card className="relative overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 to-transparent pointer-events-none" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
+            <CardTitle className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              Active Payment Links
+            </CardTitle>
+            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+              <CreditCard className="h-4 w-4 text-blue-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">12</div>
-            <p className="text-xs text-muted-foreground mt-1">
+          <CardContent className="relative">
+            <div className="text-2xl font-bold text-slate-900">12</div>
+            <p className="text-xs text-slate-400 mt-1.5 font-medium">
               +3 new links this week
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-card border shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Available to Settle</CardTitle>
-            <Wallet className="h-4 w-4 text-primary" />
+        {/* Card 3 */}
+        <Card className="relative overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/60 to-transparent pointer-events-none" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
+            <CardTitle className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              Available to Settle
+            </CardTitle>
+            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <Wallet className="h-4 w-4 text-emerald-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">
+          <CardContent className="relative">
+            <div className="text-2xl font-bold text-slate-900">
               <CurrencyDisplay amount={12450.00} />
             </div>
-            <p className="text-xs text-destructive flex items-center mt-1">
+            <p className="text-xs text-amber-500 flex items-center mt-1.5 font-medium">
               <ArrowDownRight className="h-3 w-3 mr-1" />
               Pending NGN conversion
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-card border shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Current FX Rate</CardTitle>
-            <RefreshCcw className="h-4 w-4 text-primary" />
+        {/* Card 4 */}
+        <Card className="relative overflow-hidden border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-50/60 to-transparent pointer-events-none" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
+            <CardTitle className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              Current FX Rate
+            </CardTitle>
+            <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+              <RefreshCcw className="h-4 w-4 text-purple-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-foreground">₦1,550 / USDC</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Updated 5 mins ago
+          <CardContent className="relative">
+            <div className="text-2xl font-bold text-slate-900">₦1,550</div>
+            <p className="text-xs text-slate-400 mt-1.5 font-medium">
+              per USDC · Updated 5m ago
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-7">
-        <Card className="col-span-4 bg-card border shadow-sm">
-          <CardHeader>
-            <CardTitle>Revenue Over Time</CardTitle>
+      {/* ── Charts + Recent Transactions ── */}
+      <div className="grid gap-6 lg:grid-cols-7">
+
+        {/* Revenue Chart */}
+        <Card className="lg:col-span-4 border border-slate-200 bg-white shadow-sm">
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base font-semibold text-slate-900">Revenue Over Time</CardTitle>
+                <p className="text-xs text-slate-400 mt-0.5">USDC received to your merchant wallet</p>
+              </div>
+              <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+                {PERIOD_OPTIONS.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setActivePeriod(p)}
+                    className={cn(
+                      'px-3 py-1 rounded-md text-xs font-semibold transition-all',
+                      activePeriod === p
+                        ? 'bg-white text-slate-900 shadow-sm'
+                        : 'text-slate-400 hover:text-slate-600'
+                    )}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="pl-2">
-            <div className="h-[300px] w-full mt-4">
+          <CardContent className="pt-0">
+            <div className="h-[260px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={mockChartData}>
+                <AreaChart data={mockChartData} margin={{ top: 4, right: 4, bottom: 0, left: -16 }}>
                   <defs>
-                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#F0A500" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#F0A500" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="hsl(var(--muted-foreground))" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false} 
+                  <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    stroke="#CBD5E1"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fill: '#94A3B8' }}
                   />
-                  <YAxis 
-                    stroke="hsl(var(--muted-foreground))" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false} 
-                    tickFormatter={(value) => `$${value}`} 
+                  <YAxis
+                    stroke="#CBD5E1"
+                    fontSize={11}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) => `$${v}`}
+                    tick={{ fill: '#94A3B8' }}
                   />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', color: 'hsl(var(--foreground))' }}
-                    itemStyle={{ color: 'hsl(var(--primary))' }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="total" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    fillOpacity={1} 
-                    fill="url(#colorTotal)" 
+                  <Tooltip content={<ChartTooltip />} />
+                  <Area
+                    type="monotone"
+                    dataKey="total"
+                    stroke="#F0A500"
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#colorRevenue)"
+                    dot={false}
+                    activeDot={{ r: 5, fill: '#F0A500', stroke: '#fff', strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
+            {/* Summary row */}
+            <div className="flex items-center gap-6 pt-4 border-t border-slate-100 mt-2">
+              <div>
+                <p className="text-xs text-slate-400">Peak day</p>
+                <p className="text-sm font-semibold text-slate-900">Saturday · $4,100</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-400">Weekly avg</p>
+                <p className="text-sm font-semibold text-slate-900">$2,714</p>
+              </div>
+              <div className="ml-auto flex items-center gap-1 text-emerald-600 text-xs font-semibold bg-emerald-50 px-3 py-1.5 rounded-full">
+                <TrendingUp className="w-3 h-3" />
+                +18.4% WoW
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 bg-card border shadow-sm">
-          <CardHeader>
-            <CardTitle>Recent Transactions</CardTitle>
+        {/* Recent Transactions */}
+        <Card className="lg:col-span-3 border border-slate-200 bg-white shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-semibold text-slate-900">Recent Activity</CardTitle>
+              <Link href="/transactions">
+                <Button variant="ghost" className="text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50 h-7 px-2 rounded-lg font-semibold">
+                  View all <ChevronRight className="w-3 h-3 ml-0.5" />
+                </Button>
+              </Link>
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="flex items-center">
-                  <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center mr-4">
-                    <span className="text-xs text-muted-foreground font-mono">GBX{i}</span>
+          <CardContent className="pt-0">
+            <div className="space-y-1">
+              {mockTransactions.map((tx) => (
+                <div
+                  key={tx.id}
+                  className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-slate-50 transition-colors group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-100 transition-colors">
+                    <Zap className="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors" />
                   </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none text-foreground">
-                      Payment Received
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {i} hour{i > 1 ? 's' : ''} ago
-                    </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-800 truncate">{tx.label}</p>
+                    <p className="text-xs text-slate-400 font-mono">{tx.address} · {tx.time}</p>
                   </div>
-                  <div className="text-sm font-medium text-green-500">
-                    +<CurrencyDisplay amount={150 * i} showDecimals={false} />
+                  <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                    <span className={cn(
+                      'text-sm font-semibold',
+                      tx.status === 'failed' ? 'text-red-500' : 'text-emerald-600'
+                    )}>
+                      {tx.status === 'failed' ? '-' : '+'}<CurrencyDisplay amount={tx.amount} showDecimals={false} />
+                    </span>
+                    <StatusBadge status={tx.status as 'completed' | 'pending' | 'failed'} />
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* ── Bottom Row: Quick Actions + Payment Link Performance ── */}
+      <div className="grid gap-6 lg:grid-cols-7">
+
+        {/* Quick Actions */}
+        <Card className="lg:col-span-3 border border-slate-200 bg-white shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold text-slate-900">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 grid grid-cols-2 gap-3">
+            {[
+              { label: 'Create Payment Link', icon: Plus, href: '/payments', color: 'amber' },
+              { label: 'View Transactions', icon: BarChart3, href: '/transactions', color: 'blue' },
+              { label: 'Settle Funds', icon: Wallet, href: '/settlement', color: 'emerald' },
+              { label: 'Check FX Rate', icon: RefreshCcw, href: '/fx', color: 'purple' },
+            ].map(({ label, icon: Icon, href, color }) => (
+              <Link key={href} href={href}>
+                <div className={cn(
+                  'flex flex-col gap-3 p-4 rounded-xl border cursor-pointer transition-all hover:scale-[1.02] hover:shadow-sm',
+                  color === 'amber' && 'border-amber-200 bg-amber-50 hover:bg-amber-100',
+                  color === 'blue' && 'border-blue-200 bg-blue-50 hover:bg-blue-100',
+                  color === 'emerald' && 'border-emerald-200 bg-emerald-50 hover:bg-emerald-100',
+                  color === 'purple' && 'border-purple-200 bg-purple-50 hover:bg-purple-100',
+                )}>
+                  <Icon className={cn(
+                    'w-5 h-5',
+                    color === 'amber' && 'text-amber-600',
+                    color === 'blue' && 'text-blue-600',
+                    color === 'emerald' && 'text-emerald-600',
+                    color === 'purple' && 'text-purple-600',
+                  )} />
+                  <p className="text-xs font-semibold text-slate-700 leading-tight">{label}</p>
+                </div>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Payment Link Performance */}
+        <Card className="lg:col-span-4 border border-slate-200 bg-white shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base font-semibold text-slate-900">Payment Link Performance</CardTitle>
+              <Link href="/payments">
+                <Button variant="ghost" className="text-xs text-amber-600 hover:text-amber-700 hover:bg-amber-50 h-7 px-2 rounded-lg font-semibold">
+                  Manage <ArrowRight className="w-3 h-3 ml-0.5" />
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-3">
+              {mockPaymentLinks.map((link) => {
+                const conversionRate = Math.round((link.converted / link.clicks) * 100);
+                return (
+                  <div key={link.id} className="flex items-center gap-4 p-3 rounded-xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50/50 transition-all group">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                      <CreditCard className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-800 truncate">{link.label}</p>
+                      <p className="text-xs text-slate-400 font-mono truncate">{link.url}</p>
+                      {/* Conversion bar */}
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-amber-400 rounded-full"
+                            style={{ width: `${conversionRate}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-slate-500 font-medium">{conversionRate}%</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <span className="text-sm font-bold text-slate-900">{link.converted}</span>
+                      <span className="text-xs text-slate-400">{link.clicks} clicks</span>
+                    </div>
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg" onClick={() => handleCopy(`https://${link.url}`)}>
+                        <Copy className="w-3 h-3 text-slate-400" />
+                      </Button>
+                      <Link href={`https://${link.url}`} target="_blank">
+                        <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg">
+                          <ExternalLink className="w-3 h-3 text-slate-400" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

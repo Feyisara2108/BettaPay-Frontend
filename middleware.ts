@@ -43,9 +43,12 @@ export function middleware(request: NextRequest) {
   // Protect merchant routes from admins
   const isMerchantRoute = request.nextUrl.pathname === '/dashboard' ||
                           request.nextUrl.pathname === '/payments' ||
+                          request.nextUrl.pathname === '/transactions' ||
                           request.nextUrl.pathname === '/settlement' ||
                           request.nextUrl.pathname === '/wallet' ||
-                          request.nextUrl.pathname === '/fx';
+                          request.nextUrl.pathname === '/fx' ||
+                          request.nextUrl.pathname === '/developers' ||
+                          request.nextUrl.pathname === '/settings';
                           
   if (isMerchantRoute && role === 'admin') {
     return NextResponse.redirect(new URL('/overview', request.url));

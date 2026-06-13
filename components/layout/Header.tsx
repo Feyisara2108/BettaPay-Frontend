@@ -3,9 +3,8 @@
 import Link from 'next/link';
 import { ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ThemeToggle from '@/components/ui/ThemeToggle';
 
-export default function Header({ onConnect }: { onConnect?: () => void }) {
+export default function Header() {
   return (
     <header className="w-full border-b bg-brand-surface/60 backdrop-blur-sm">
       <div className="container mx-auto flex items-center justify-between h-20">
@@ -23,7 +22,6 @@ export default function Header({ onConnect }: { onConnect?: () => void }) {
         </nav>
 
         <div className="flex items-center gap-3">
-          <ThemeToggle />
           <Link href="/auth/login">
             <Button variant="ghost" className="text-brand-text-muted">Log in</Button>
           </Link>

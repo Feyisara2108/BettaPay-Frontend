@@ -16,7 +16,7 @@ export const isFreighterAvailable = async (): Promise<boolean> => {
     // isAllowed will throw if Freighter is not installed or inaccessible
     await isAllowed();
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 };

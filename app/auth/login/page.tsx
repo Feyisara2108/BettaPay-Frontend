@@ -16,7 +16,6 @@ import { useWalletStore } from '@/lib/store/walletStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 const WalletModal = dynamic(() => import('@/components/wallet/WalletModal').then(m => m.WalletModal), { ssr: false });
 
@@ -147,84 +146,86 @@ export default function LoginPage() {
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
       <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} onConnected={onWalletConnected} />
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Welcome back</h1>
-        <p className="text-slate-500 mt-2 text-base">Sign in to manage your payments</p>
+      {/* Heading */}
+      <div className="mb-10">
+        <p className="text-xs font-semibold tracking-widest text-amber-500 uppercase mb-3">Merchant Portal</p>
+        <h1 className="text-4xl font-bold text-slate-900 leading-tight">Sign in to<br />your account</h1>
+        <p className="text-slate-400 mt-3 text-sm">
+          Don&apos;t have an account?{' '}
+          <Link href="/auth/register" className="text-amber-600 font-semibold hover:text-amber-700 transition-colors">
+            Create one free
+          </Link>
+        </p>
       </div>
 
-      <Card className="rounded-2xl bg-white border border-slate-200 shadow-sm">
-        <CardHeader className="px-8 pt-8 pb-0">
-          <div />
-        </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-5 px-8 pt-6">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-700 font-medium text-sm">Email Address</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@company.com" 
-                  {...register('email')} 
-                  className="bg-slate-50 h-11 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:border-amber-400 transition-all rounded-lg"
-                />
-                {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-slate-700 font-medium text-sm">Password</Label>
-                  <Link href="#" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
-                    Forgot password?
-                  </Link>
-                </div>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  placeholder="••••••••"
-                  {...register('password')} 
-                  className="bg-slate-50 h-11 border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:border-amber-400 transition-all rounded-lg"
-                />
-                {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
-              </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4 pb-8 pt-4 px-8">
-            <Button 
-              type="submit" 
-              className="w-full h-11 text-base font-semibold bg-amber-500 text-white hover:bg-amber-600 shadow-md shadow-amber-500/20 transition-all rounded-lg" 
-              disabled={isLoading || isWalletLoading}
-            >
-              {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
-              Sign In
-            </Button>
-            
-            <div className="relative w-full">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-3 text-slate-400 font-medium tracking-wider">Or continue with</span>
-              </div>
-            </div>
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Email */}
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            Email Address
+          </Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="name@company.com"
+            {...register('email')}
+            className="h-12 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-300 rounded-xl text-sm focus-visible:ring-1 focus-visible:ring-amber-400 focus-visible:border-amber-400 transition-all"
+          />
+          {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
+        </div>
 
-            <Button 
-              type="button" 
-              variant="outline"
-              className="w-full h-11 text-base font-medium bg-white border-slate-200 text-slate-700 hover:bg-slate-50 transition-all rounded-lg"
-              onClick={() => setWalletModalOpen(true)}
-              disabled={isLoading || isWalletLoading}
-            >
-              {isWalletLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
-              Freighter Wallet
-            </Button>
+        {/* Password */}
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password" className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Password
+            </Label>
+            <Link href="#" className="text-xs text-slate-400 hover:text-amber-600 transition-colors">
+              Forgot password?
+            </Link>
+          </div>
+          <Input
+            id="password"
+            type="password"
+            placeholder="••••••••"
+            {...register('password')}
+            className="h-12 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-300 rounded-xl text-sm focus-visible:ring-1 focus-visible:ring-amber-400 focus-visible:border-amber-400 transition-all"
+          />
+          {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+        </div>
 
-            <p className="text-sm text-center text-slate-500">
-              Don&apos;t have an account?{' '}
-              <Link href="/auth/register" className="text-blue-600 hover:text-blue-700 transition-colors font-semibold">
-                Create one now
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+        {/* Sign In CTA */}
+        <div className="pt-1">
+          <Button
+            type="submit"
+            disabled={isLoading || isWalletLoading}
+            className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm rounded-xl border-0 transition-colors"
+          >
+            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Sign In
+          </Button>
+        </div>
+      </form>
+
+      {/* Divider */}
+      <div className="flex items-center gap-4 my-6">
+        <div className="flex-1 h-px bg-slate-100" />
+        <span className="text-xs text-slate-400 font-medium">or</span>
+        <div className="flex-1 h-px bg-slate-100" />
+      </div>
+
+      {/* Wallet button */}
+      <Button
+        type="button"
+        onClick={() => setWalletModalOpen(true)}
+        disabled={isLoading || isWalletLoading}
+        className="w-full h-12 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-sm rounded-xl transition-colors"
+      >
+        {isWalletLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+        Connect Freighter Wallet
+      </Button>
     </div>
   );
 }
+

@@ -34,10 +34,11 @@ export const Topbar = ({ onMenuClick, title }: TopbarProps) => {
       </div>
 
       <div className="flex items-center gap-4 flex-1 justify-end">
-        <div className="relative w-full max-w-sm hidden lg:block">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <div className="relative w-full max-w-sm hidden lg:block" role="search" aria-label="Site search">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <Input 
             type="search" 
+            aria-label="Search transactions and payment links"
             placeholder="Search transactions, payment links..." 
             className="pl-9 bg-muted/40 border-border/50 focus-visible:ring-primary rounded-full h-9"
           />

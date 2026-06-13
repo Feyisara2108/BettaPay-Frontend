@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { AdminSidebar } from '@/components/layout/AdminSidebar';
 import { Topbar } from '@/components/layout/Topbar';
+import Footer from '@/components/layout/Footer';
 
 export default function AdminLayout({
   children,
@@ -23,6 +24,7 @@ export default function AdminLayout({
             {children}
           </div>
         </main>
+        <Footer />
       </div>
     </div>
   );

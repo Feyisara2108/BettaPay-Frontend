@@ -14,7 +14,8 @@ export async function POST(req: Request) {
     res.headers.append('Set-Cookie', `user_role=${role}; Path=/; SameSite=Lax`);
 
     return res;
-  } catch (err) {
+  } catch (error) {
+    console.error('Failed to set session:', error);
     return NextResponse.json({ ok: false, error: 'Failed to set session' }, { status: 500 });
   }
 }

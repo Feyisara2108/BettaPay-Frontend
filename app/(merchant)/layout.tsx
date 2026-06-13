@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MerchantSidebar } from '@/components/layout/MerchantSidebar';
 import { Topbar } from '@/components/layout/Topbar';
+import Footer from '@/components/layout/Footer';
 
 export default function MerchantLayout({
   children,
@@ -23,6 +24,7 @@ export default function MerchantLayout({
             {children}
           </div>
         </main>
+        <Footer />
       </div>
     </div>
   );

@@ -13,10 +13,13 @@ import { toast } from 'sonner';
 import { Contract, rpc, TransactionBuilder, Networks, nativeToScVal } from '@stellar/stellar-sdk';
 import { signWithFreighter } from '@/lib/stellar/freighter';
 import { apiClient } from '@/lib/api/axios';
+import dynamic from 'next/dynamic';
+const WalletModal = dynamic(() => import('@/components/wallet/WalletModal').then(m => m.WalletModal), { ssr: false });
 
 export default function PaymentLinkPage() {
   const router = useRouter();
   const { isConnected, connect, address } = useWalletStore();
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
   
   // Mock data for this link
   const linkData = {
@@ -109,7 +112,8 @@ export default function PaymentLinkPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md"> 
+        <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} />
         
         {/* Merchant Branding Header */}
         <div className="flex flex-col items-center mb-8">
@@ -231,6 +235,21 @@ export default function PaymentLinkPage() {
         <div className="mt-8 text-center text-xs text-muted-foreground">
           Powered by <span className="font-semibold text-foreground">BettaPay</span>
         </div>
+
+        {/* responsive footer */}
+        <footer className="mt-6 text-center text-xs text-muted-foreground">
+          <div className="max-w-md mx-auto flex items-center justify-between gap-4 px-2">
+            <div>Secure payments on Stellar</div>
+            <div className="flex items-center gap-2">
+              <button
+                className="text-sm text-primary underline"
+                onClick={() => setWalletModalOpen(true)}
+              >
+                Connect Wallet
+              </button>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

@@ -30,7 +30,8 @@ export const MerchantSidebar = () => {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-64 flex-col bg-sidebar border-r border-sidebar-border hidden md:flex">
+    <aside className="flex h-full w-64 flex-col bg-sidebar border-r border-sidebar-border hidden md:flex" aria-label="Primary">
+      {/* Sidebar content */}
       <div className="p-6">
         <Link href="/dashboard" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
@@ -77,6 +78,6 @@ export const MerchantSidebar = () => {
           </div>
         </div>
       </div>
-    </div>
+    </aside>
   );
 };

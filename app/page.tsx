@@ -4,38 +4,13 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ShieldCheck, ArrowRight, Zap, Globe, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-zinc-950 text-white selection:bg-primary/30 selection:text-primary">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full border-b border-white/5 bg-zinc-950/50 backdrop-blur-md z-50">
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <ShieldCheck className="w-6 h-6 text-primary" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">BettaPay</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-            <Link href="#features" className="hover:text-white transition-colors">Features</Link>
-            <Link href="#developers" className="hover:text-white transition-colors">Developers</Link>
-            <Link href="#company" className="hover:text-white transition-colors">Company</Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/auth/login">
-              <Button variant="ghost" className="text-zinc-300 hover:text-white hover:bg-white/5">
-                Log in
-              </Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(240,165,0,0.3)]">
-                Get Started
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))] selection:bg-brand-accent/30 selection:text-white">
+      <Header />
 
       {/* Hero Section */}
       <main className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
@@ -140,14 +115,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-12 border-t border-white/5 text-center text-zinc-500">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <ShieldCheck className="w-5 h-5 text-primary" />
-          <span className="font-semibold text-zinc-300">BettaPay</span>
-        </div>
-        <p>© 2026 BettaPay Inc. Built on Stellar.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

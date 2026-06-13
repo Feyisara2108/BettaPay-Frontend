@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import dynamic from 'next/dynamic';
 
 import { loginSchema, LoginFormValues } from '@/lib/utils/validation';
 import { useAuthStore } from '@/lib/store/authStore';
@@ -17,12 +18,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
+const WalletModal = dynamic(() => import('@/components/wallet/WalletModal').then(m => m.WalletModal), { ssr: false });
+
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuthStore();
   const { connect } = useWalletStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isWalletLoading, setIsWalletLoading] = useState(false);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   const {
     register,
@@ -69,9 +73,9 @@ export default function LoginPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token: mockToken, role }),
         });
-      } catch (err) {
+      } catch (error) {
         // Backend unavailable; continue without setting insecure client cookies.
-        console.warn('Auth session API unavailable; continuing without HttpOnly cookie.');
+        console.warn('Auth session API unavailable; continuing without HttpOnly cookie.', error);
       }
 
       // Keep token in-memory for current session only (not persisted)
@@ -87,33 +91,47 @@ export default function LoginPage() {
     }
   };
 
+  // When WalletModal reports a connected address, perform the merchant login flow
+  const onWalletConnected = async (address: string) => {
+    setIsWalletLoading(true);
+    try {
+      const mockToken = 'mock_jwt_token_12345';
+      const role = 'merchant';
+      try {
+        await fetch('/api/auth/session', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: mockToken, role }),
+        });
+      } catch (error) {
+        console.warn('Auth session API unavailable; continuing without HttpOnly cookie.', error);
+      }
+
+      login(mockToken, { 
+        id: address, 
+        email: `${address.substring(0,6)}...${address.slice(-4)}@freighter.app`, 
+        name: 'Web3 Merchant', 
+        role 
+      });
+      toast.success('Wallet connected & Logged in!');
+      router.push('/dashboard');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to complete wallet-login flow');
+    } finally {
+      setIsWalletLoading(false);
+    }
+  };
+
+  // kept for backward compatibility but no longer used directly
   const handleFreighterLogin = async () => {
     setIsWalletLoading(true);
     try {
       await connect();
       const address = useWalletStore.getState().address;
       if (address) {
-        const mockToken = 'mock_jwt_token_12345';
-        const role = 'merchant';
-        try {
-          await fetch('/api/auth/session', {
-            method: 'POST',
-            credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: mockToken, role }),
-          });
-        } catch (err) {
-          console.warn('Auth session API unavailable; continuing without HttpOnly cookie.');
-        }
-
-        login(mockToken, { 
-          id: address, 
-          email: `${address.substring(0,6)}...${address.slice(-4)}@freighter.app`, 
-          name: 'Web3 Merchant', 
-          role 
-        });
-        toast.success('Wallet connected & Logged in!');
-        router.push('/dashboard');
+        await onWalletConnected(address);
       } else {
         toast.error('Wallet connection was cancelled or Freighter is not installed.');
       }
@@ -132,30 +150,32 @@ export default function LoginPage() {
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="w-full"
     >
-      <Card className="border-white/10 bg-zinc-900/50 backdrop-blur-xl shadow-2xl rounded-2xl overflow-hidden">
+      <WalletModal open={walletModalOpen} onOpenChange={setWalletModalOpen} onConnected={onWalletConnected} />
+
+      <Card className="rounded-2xl overflow-hidden bg-card/95 ring-1 ring-border/10 shadow-lg">
         <CardHeader className="space-y-2 text-center pb-8 pt-8">
-            <CardTitle className="text-3xl font-bold tracking-tight text-white">Welcome back</CardTitle>
-            <CardDescription className="text-zinc-400 text-base">
+            <CardTitle className="text-3xl font-bold tracking-tight text-brand-text-primary">Welcome back</CardTitle>
+            <CardDescription className="text-brand-text-muted text-base">
               Sign in to manage your payments
             </CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit(onSubmit)}>
             <CardContent className="space-y-5 px-8">
               <div className="space-y-2.5">
-                <Label htmlFor="email" className="text-zinc-300">Email Address</Label>
+                <Label htmlFor="email" className="text-brand-text-muted">Email Address</Label>
                 <Input 
                   id="email" 
                   type="email" 
                   placeholder="name@company.com" 
                   {...register('email')} 
-                  className="bg-zinc-950/50 h-12 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-primary focus-visible:border-primary transition-all"
+                  className="bg-input h-12 border-border text-brand-text-primary placeholder:text-brand-text-muted focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-all"
                 />
                 {errors.email && <p className="text-sm text-red-400">{errors.email.message}</p>}
               </div>
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-zinc-300">Password</Label>
-                  <Link href="#" className="text-sm text-primary hover:text-primary/80 transition-colors">
+                  <Label htmlFor="password" className="text-brand-text-muted">Password</Label>
+                  <Link href="#" className="text-sm text-brand-accent hover:opacity-90 transition-colors">
                     Forgot password?
                   </Link>
                 </div>
@@ -164,7 +184,7 @@ export default function LoginPage() {
                   type="password" 
                   placeholder="••••••••"
                   {...register('password')} 
-                  className="bg-zinc-950/50 h-12 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-primary focus-visible:border-primary transition-all"
+                  className="bg-input h-12 border-border text-brand-text-primary placeholder:text-brand-text-muted focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-all"
                 />
                 {errors.password && <p className="text-sm text-red-400">{errors.password.message}</p>}
               </div>
@@ -172,7 +192,7 @@ export default function LoginPage() {
             <CardFooter className="flex flex-col space-y-6 pb-8 pt-4 px-8">
               <Button 
                 type="submit" 
-                className="w-full h-12 text-base font-medium bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(240,165,0,0.3)] transition-all hover:shadow-[0_0_25px_rgba(240,165,0,0.5)]" 
+                className="w-full h-12 text-base font-medium bg-primary text-white hover:bg-primary/90 shadow-[0_0_20px_rgba(240,165,0,0.3)] transition-all hover:shadow-[0_0_25px_rgba(240,165,0,0.5)]" 
                 disabled={isLoading || isWalletLoading}
               >
                 {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
@@ -184,24 +204,24 @@ export default function LoginPage() {
                   <span className="w-full border-t border-white/10" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-zinc-900/80 px-2 text-zinc-500">Or continue with</span>
+                  <span className="bg-card px-2 text-brand-text-muted">Or continue with</span>
                 </div>
               </div>
 
               <Button 
                 type="button" 
                 variant="outline"
-                className="w-full h-12 text-base font-medium bg-zinc-950/50 border-white/10 text-white hover:bg-zinc-900 hover:text-primary transition-all"
-                onClick={handleFreighterLogin}
+                className="w-full h-12 text-base font-medium bg-input border-border text-brand-text-primary hover:opacity-95 transition-all"
+                onClick={() => setWalletModalOpen(true)}
                 disabled={isLoading || isWalletLoading}
               >
                 {isWalletLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
                 Freighter Wallet
               </Button>
 
-              <div className="text-sm text-center text-zinc-400">
+              <div className="text-sm text-center text-brand-text-muted">
                 Don&apos;t have an account?{' '}
-                <Link href="/auth/register" className="text-white hover:text-primary transition-colors font-medium">
+                <Link href="/auth/register" className="text-brand-accent hover:opacity-90 transition-colors font-medium">
                   Create one now
                 </Link>
               </div>

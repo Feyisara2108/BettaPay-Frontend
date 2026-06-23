@@ -106,9 +106,11 @@ export default function RegisterPage() {
                   id="businessName" 
                   placeholder="Acme Corp" 
                   {...register('businessName')} 
+                  aria-invalid={errors.businessName ? "true" : "false"}
+                  aria-describedby={errors.businessName ? "businessName-error" : undefined}
                   className="bg-input h-12 border-border text-brand-text-primary placeholder:text-brand-text-muted focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-all"
                 />
-                {errors.businessName && <p className="text-sm text-red-400">{errors.businessName.message}</p>}
+                {errors.businessName && <p id="businessName-error" className="text-sm text-red-400">{errors.businessName.message}</p>}
               </div>
 
               <div className="space-y-2.5">
@@ -118,15 +120,21 @@ export default function RegisterPage() {
                   type="email" 
                   placeholder="m@example.com" 
                   {...register('email')} 
+                  aria-invalid={errors.email ? "true" : "false"}
+                  aria-describedby={errors.email ? "email-error" : undefined}
                   className="bg-input h-12 border-border text-brand-text-primary placeholder:text-brand-text-muted focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-all"
                 />
-                {errors.email && <p className="text-sm text-red-400">{errors.email.message}</p>}
+                {errors.email && <p id="email-error" className="text-sm text-red-400">{errors.email.message}</p>}
               </div>
 
               <div className="space-y-2.5">
                 <Label htmlFor="country" className="text-zinc-300">Country of Operation</Label>
                 <Select onValueChange={(val: string | null) => { if (val) setValue('country', val as 'NG' | 'KE' | 'ZA'); }}>
-                  <SelectTrigger className="bg-input h-12 border-border text-brand-text-primary focus:ring-primary transition-all">
+                  <SelectTrigger 
+                    aria-invalid={errors.country ? "true" : "false"}
+                    aria-describedby={errors.country ? "country-error" : undefined}
+                    className="bg-input h-12 border-border text-brand-text-primary focus:ring-primary transition-all"
+                  >
                     <SelectValue placeholder="Select country" />
                   </SelectTrigger>
                   <SelectContent className="bg-card border-border text-brand-text-primary">
@@ -135,7 +143,7 @@ export default function RegisterPage() {
                     <SelectItem value="ZA">South Africa (ZA)</SelectItem>
                   </SelectContent>
                 </Select>
-                {errors.country && <p className="text-sm text-red-400">{errors.country.message}</p>}
+                {errors.country && <p id="country-error" className="text-sm text-red-400">{errors.country.message}</p>}
               </div>
 
               <div className="space-y-2.5">
@@ -145,9 +153,11 @@ export default function RegisterPage() {
                   type="password"
                   placeholder="••••••••" 
                   {...register('password')} 
+                  aria-invalid={errors.password ? "true" : "false"}
+                  aria-describedby={errors.password ? "password-error" : undefined}
                   className="bg-input h-12 border-border text-brand-text-primary placeholder:text-brand-text-muted focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-all"
                 />
-                {errors.password && <p className="text-sm text-red-400">{errors.password.message}</p>}
+                {errors.password && <p id="password-error" className="text-sm text-red-400">{errors.password.message}</p>}
               </div>
             </CardContent>
             <CardFooter className="flex flex-col space-y-6 pb-8 pt-4 px-8">

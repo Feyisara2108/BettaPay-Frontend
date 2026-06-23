@@ -150,9 +150,11 @@ export default function LoginPage() {
             type="email"
             placeholder="name@company.com"
             {...register('email')}
+            aria-invalid={errors.email ? "true" : "false"}
+            aria-describedby={errors.email ? "email-error" : undefined}
             className="h-12 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-300 rounded-xl text-sm focus-visible:ring-1 focus-visible:ring-amber-400 focus-visible:border-amber-400 transition-all"
           />
-          {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
+          {errors.email && <p id="email-error" className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
         </div>
 
         {/* Password */}
@@ -170,9 +172,11 @@ export default function LoginPage() {
             type="password"
             placeholder="••••••••"
             {...register('password')}
+            aria-invalid={errors.password ? "true" : "false"}
+            aria-describedby={errors.password ? "password-error" : undefined}
             className="h-12 bg-white border border-slate-200 text-slate-900 placeholder:text-slate-300 rounded-xl text-sm focus-visible:ring-1 focus-visible:ring-amber-400 focus-visible:border-amber-400 transition-all"
           />
-          {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
+          {errors.password && <p id="password-error" className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
         </div>
 
         {/* Sign In CTA */}

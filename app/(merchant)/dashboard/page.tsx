@@ -21,6 +21,8 @@ import {
   BarChart3,
   ArrowRight,
 } from 'lucide-react';
+import { TransactionDetail } from '@/components/transactions/TransactionDetail';
+import { Transaction, mockTransactions as realTransactions } from '@/lib/mock/transactions';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -45,13 +47,21 @@ const mockChartData = [
   { name: 'Sun', total: 3800, volume: 26600 },
 ];
 
-const mockTransactions = [
-  { id: 'tx_01', label: 'Consulting Retainer', address: 'GBX1...3F9A', amount: 750, status: 'completed', time: '2m ago' },
-  { id: 'tx_02', label: 'E-commerce Payment', address: 'GDR2...7K1B', amount: 45.5, status: 'completed', time: '18m ago' },
-  { id: 'tx_03', label: 'Invoice #1042', address: 'GBN3...2P8C', amount: 1200, status: 'pending', time: '1h ago' },
-  { id: 'tx_04', label: 'Subscription Fee', address: 'GCH4...9M4D', amount: 29, status: 'completed', time: '3h ago' },
-  { id: 'tx_05', label: 'Freelance Project', address: 'GDX5...1N5E', amount: 3500, status: 'failed', time: '5h ago' },
-];
+const mockTransactions = realTransactions.slice(0, 5).map((tx, i) => {
+  const oldData = [
+    { label: 'Consulting Retainer', amount: 750, time: '2m ago' },
+    { label: 'E-commerce Payment', amount: 45.5, time: '18m ago' },
+    { label: 'Invoice #1042', amount: 1200, time: '1h ago' },
+    { label: 'Subscription Fee', amount: 29, time: '3h ago' },
+    { label: 'Freelance Project', amount: 3500, time: '5h ago' },
+  ];
+  return {
+    ...tx,
+    ...oldData[i],
+    amountUsdc: oldData[i].amount, // Ensure amountUsdc matches what Dashboard expects now
+    address: tx.payerAddress.substring(0, 4) + '...' + tx.payerAddress.substring(tx.payerAddress.length - 4),
+  };
+});
 
 const mockPaymentLinks = [
   { id: 'link_01', label: 'Consulting Retainer Q3', url: 'betta.pay/pay/link_01', clicks: 24, converted: 8 },
@@ -79,6 +89,7 @@ const ChartTooltip = ({ active, payload, label }: TooltipProps) => {
 export default function DashboardPage() {
   const { user } = useAuthStore();
   const [activePeriod, setActivePeriod] = useState<Period>('7D');
+  const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
 
   const firstName = user?.name?.split(' ')[0] ?? 'Merchant';
 
@@ -303,7 +314,8 @@ export default function DashboardPage() {
               {mockTransactions.map((tx) => (
                 <div
                   key={tx.id}
-                  className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-slate-50 transition-colors group"
+                  className="flex items-center gap-3 py-2.5 px-2 rounded-xl hover:bg-slate-50 transition-colors group cursor-pointer"
+                  onClick={() => setSelectedTx(tx as any)}
                 >
                   <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-100 transition-colors">
                     <Zap className="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors" />
@@ -317,7 +329,7 @@ export default function DashboardPage() {
                       'text-sm font-semibold',
                       tx.status === 'failed' ? 'text-red-500' : 'text-emerald-600'
                     )}>
-                      {tx.status === 'failed' ? '-' : '+'}<CurrencyDisplay amount={tx.amount} showDecimals={false} />
+                      {tx.status === 'failed' ? '-' : '+'}<CurrencyDisplay amount={tx.amountUsdc} showDecimals={false} />
                     </span>
                     <StatusBadge status={tx.status as 'completed' | 'pending' | 'failed'} />
                   </div>
@@ -421,6 +433,12 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <TransactionDetail 
+        transaction={selectedTx}
+        isOpen={!!selectedTx}
+        onClose={() => setSelectedTx(null)}
+      />
     </div>
   );
 }

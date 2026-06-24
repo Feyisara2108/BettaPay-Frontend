@@ -101,7 +101,11 @@ export default function TransactionsPage() {
                   </TableRow>
                 ) : (
                   filteredTransactions.map((tx) => (
-                    <TableRow key={tx.id} className="border-border/50 hover:bg-muted/30">
+                    <TableRow 
+                      key={tx.id} 
+                      className="border-border/50 hover:bg-muted/30 cursor-pointer"
+                      onClick={() => setSelectedTx(tx)}
+                    >
                       <TableCell className="text-muted-foreground whitespace-nowrap">
                         {formatDate(tx.timestamp)}
                       </TableCell>
@@ -131,6 +135,12 @@ export default function TransactionsPage() {
           </div>
         </CardContent>
       </Card>
+
+      <TransactionDetail 
+        transaction={selectedTx}
+        isOpen={!!selectedTx}
+        onClose={() => setSelectedTx(null)}
+      />
     </div>
   );
 }

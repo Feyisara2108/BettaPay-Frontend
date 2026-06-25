@@ -1,6 +1,8 @@
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../store/authStore';
+import { useRateLimitStore } from '../store/rateLimitStore';
 import { toast } from 'sonner';
+import { getCsrfTokenFromCookie, CSRF_HEADER_NAME } from '../utils/csrf';
 
 // Use cookie-based auth (HttpOnly cookie set by the server). Do not read tokens from localStorage.
 export const apiClient = axios.create({
@@ -12,22 +14,97 @@ export const apiClient = axios.create({
   withCredentials: true,
 });
 
-// No Authorization header injection from client-side stored tokens. Server should set/validate cookie.
-apiClient.interceptors.request.use((config) => config);
+// Separate instance for refresh calls to avoid interceptor recursion
+const refreshClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
+});
+
+// Attach CSRF token to all state-changing requests (double-submit cookie pattern)
+const STATE_METHODS = ['post', 'put', 'patch', 'delete'] as const;
+
+apiClient.interceptors.request.use((config) => {
+  const method = (config.method || '').toLowerCase();
+  if (STATE_METHODS.includes(method as (typeof STATE_METHODS)[number])) {
+    const csrfToken = getCsrfTokenFromCookie();
+    if (csrfToken) {
+      config.headers.set(CSRF_HEADER_NAME, csrfToken);
+    }
+  }
+  return config;
+});
+
+// Token refresh state
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}> = [];
+
+function processQueue(error: unknown, token: string | null) {
+  failedQueue.forEach((prom) => {
+    if (error || !token) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+}
+
+function redirectToLogin() {
+  useAuthStore.getState().logout();
+  if (typeof window !== 'undefined') {
+    window.location.href = '/auth/login';
+  }
+}
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Clear client state and let UI decide navigation. Do NOT perform direct window.location navigation here.
-      useAuthStore.getState().logout();
+  async (error: AxiosError) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
+
+    // Handle 401 with token refresh
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      if (isRefreshing) {
+        // Queue this request until refresh completes
+        return new Promise<string>((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(() => apiClient(originalRequest));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        await refreshClient.post('/api/auth/refresh');
+        processQueue(null, 'refreshed');
+        return apiClient(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+        redirectToLogin();
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
-    
+
+    // Handle 429 rate limiting
+    if (error.response?.status === 429) {
+      const retryAfter = error.response.headers['retry-after'];
+      const seconds = parseInt(retryAfter, 10) || 30;
+      useRateLimitStore.getState().setRateLimited(seconds);
+      toast.error(`Too many attempts. Please try again in ${seconds} seconds.`);
+    }
+
     // Show toast for network errors
     if (!error.response) {
       toast.error('Network error. Please check your connection.');
     }
-    
+
     return Promise.reject(error);
   }
 );

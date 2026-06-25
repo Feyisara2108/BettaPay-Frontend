@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -12,6 +12,7 @@ import dynamic from 'next/dynamic';
 
 import { loginSchema, LoginFormValues } from '@/lib/utils/validation';
 import { useAuthStore } from '@/lib/store/authStore';
+import { useRateLimitStore } from '@/lib/store/rateLimitStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,6 +25,18 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isWalletLoading, setIsWalletLoading] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+
+  const rateLimitedUntil = useRateLimitStore((s) => s.rateLimitedUntil);
+  const secondsRemaining = useRateLimitStore((s) => s.secondsRemaining);
+  const tick = useRateLimitStore((s) => s.tick);
+  const isRateLimited = rateLimitedUntil > Date.now();
+
+  // Tick the countdown every second while rate-limited
+  useEffect(() => {
+    if (!isRateLimited) return;
+    const interval = setInterval(tick, 1000);
+    return () => clearInterval(interval);
+  }, [isRateLimited, tick]);
 
   const {
     register,
@@ -183,11 +196,11 @@ export default function LoginPage() {
         <div className="pt-1">
           <Button
             type="submit"
-            disabled={isLoading || isWalletLoading}
+            disabled={isLoading || isWalletLoading || isRateLimited}
             className="w-full h-12 bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm rounded-xl border-0 transition-colors"
           >
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            Sign In
+            {isRateLimited ? `Try again in ${secondsRemaining}s` : 'Sign In'}
           </Button>
         </div>
       </form>
@@ -203,7 +216,7 @@ export default function LoginPage() {
       <Button
         type="button"
         onClick={() => setWalletModalOpen(true)}
-        disabled={isLoading || isWalletLoading}
+        disabled={isLoading || isWalletLoading || isRateLimited}
         className="w-full h-12 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium text-sm rounded-xl transition-colors"
       >
         {isWalletLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

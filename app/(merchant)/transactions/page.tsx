@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { NetworkTooltip } from '@/components/ui/network-tooltip';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import { CopyAddress } from '@/components/shared/CopyAddress';
 import { CurrencyDisplay } from '@/components/shared/CurrencyDisplay';
@@ -14,11 +15,13 @@ import { formatDate } from '@/lib/utils/format';
 import { Search, Download, Filter, SearchX } from 'lucide-react';
 import { TransactionDetail } from '@/components/transactions/TransactionDetail';
 import { Transaction } from '@/lib/mock/transactions';
+import { useOfflineStore } from '@/lib/store/offlineStore';
 
 export default function TransactionsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCount] = useState(0);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const isOnline = useOfflineStore((s) => s.isOnline);
 
   const filteredTransactions = mockTransactions.filter(tx =>
     tx.txHash.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -59,10 +62,17 @@ export default function TransactionsPage() {
                 </span>
               )}
             </Button>
-            <Button variant="outline" className="flex-1 sm:flex-none border-border/50 bg-brand-surface">
-              <Download className="w-4 h-4 mr-2" />
-              Export CSV
-            </Button>
+            <NetworkTooltip show={!isOnline}>
+              <Button
+                variant="outline"
+                disabled={!isOnline}
+                aria-disabled={!isOnline}
+                className="flex-1 sm:flex-none border-border/50 bg-brand-surface"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export CSV
+              </Button>
+            </NetworkTooltip>
           </div>
         </div>
       </div>

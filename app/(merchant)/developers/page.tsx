@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NetworkTooltip } from '@/components/ui/network-tooltip';
 import { Code2, Copy, Eye, EyeOff, Plus, RefreshCcw, Key, Globe, BookOpen, Zap, CheckCircle2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -12,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useOfflineStore } from '@/lib/store/offlineStore';
 
 const mockKeys = [
   { id: 'key_01', name: 'Production Key', prefix: 'bp_live_', suffix: '...a4f9', created: '2024-01-01', lastUsed: '2 hours ago', type: 'live' },
@@ -90,6 +92,7 @@ export default function DevelopersPage() {
   const [selectedEvent, setSelectedEvent] = useState<string>('payment.received');
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState<{ status: number; message: string } | null>(null);
+  const isOnline = useOfflineStore((s) => s.isOnline);
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -150,9 +153,15 @@ export default function DevelopersPage() {
               <Key className="w-4 h-4 text-amber-500" /> API Keys
             </CardTitle>
           </div>
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-9 px-4 text-xs font-semibold">
-            <Plus className="w-3.5 h-3.5 mr-1.5" /> New Key
-          </Button>
+          <NetworkTooltip show={!isOnline}>
+            <Button
+              disabled={!isOnline}
+              aria-disabled={!isOnline}
+              className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-9 px-4 text-xs font-semibold"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1.5" /> New Key
+            </Button>
+          </NetworkTooltip>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -220,9 +229,15 @@ export default function DevelopersPage() {
             defaultValue="https://your-app.com/webhooks/bettapay"
             className="flex-1 h-10 border-slate-200 rounded-xl text-sm font-mono bg-slate-50"
           />
-          <Button className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-10 px-4 text-sm font-semibold shrink-0">
-            Save
-          </Button>
+          <NetworkTooltip show={!isOnline}>
+            <Button
+              disabled={!isOnline}
+              aria-disabled={!isOnline}
+              className="bg-amber-500 hover:bg-amber-600 text-white rounded-xl h-10 px-4 text-sm font-semibold shrink-0"
+            >
+              Save
+            </Button>
+          </NetworkTooltip>
         </CardContent>
       </Card>
 

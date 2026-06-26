@@ -5,6 +5,7 @@ import { ReactNode, useCallback } from "react";
 import { useAuthStore } from "@/lib/store/authStore";
 import { useSessionTimeout } from "@/lib/hooks/useSessionTimeout";
 import { SessionTimeoutModal } from "@/components/SessionTimeoutModal";
+import { OfflineBanner } from "@/components/ui/offline-banner";
 
 export function Providers({ children }: { children: ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -21,6 +22,7 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" enableSystem={false}>
+      <OfflineBanner />
       {children}
       {isAuthenticated && (
         <SessionTimeoutModal

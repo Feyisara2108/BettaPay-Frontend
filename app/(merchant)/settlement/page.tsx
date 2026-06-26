@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { NetworkTooltip } from '@/components/ui/network-tooltip';
 import { CurrencyDisplay } from '@/components/shared/CurrencyDisplay';
 import { StatusBadge } from '@/components/shared/StatusBadge';
 import {
@@ -15,6 +16,7 @@ import {
   Receipt,
 } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
+import { useOfflineStore } from '@/lib/store/offlineStore';
 
 const mockSettlements = [
   { id: 'stl_01', amount: 12450.00, amountNgn: 19297500, status: 'completed', date: '2024-01-10', bank: 'GTBank', accountNo: '012****567' },
@@ -23,6 +25,8 @@ const mockSettlements = [
 ];
 
 export default function SettlementPage() {
+  const isOnline = useOfflineStore((s) => s.isOnline);
+
   return (
     <div className="space-y-8 pb-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -33,10 +37,16 @@ export default function SettlementPage() {
             Convert your USDC balance to Nigerian Naira and settle to your bank account.
           </p>
         </div>
-        <Button className="bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl h-10 px-5 text-sm shadow-sm shadow-amber-200">
-          <Banknote className="w-4 h-4 mr-2" />
-          Initiate Settlement
-        </Button>
+        <NetworkTooltip show={!isOnline}>
+          <Button
+            disabled={!isOnline}
+            aria-disabled={!isOnline}
+            className="bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl h-10 px-5 text-sm shadow-sm shadow-amber-200"
+          >
+            <Banknote className="w-4 h-4 mr-2" />
+            Initiate Settlement
+          </Button>
+        </NetworkTooltip>
       </div>
 
       {/* Balance summary */}
@@ -78,9 +88,16 @@ export default function SettlementPage() {
             <CardTitle className="text-base font-semibold text-slate-900">Settlement History</CardTitle>
             <CardDescription>All your past USDC → NGN conversions</CardDescription>
           </div>
-          <Button variant="outline" className="border-slate-200 text-slate-600 rounded-xl text-xs h-8 px-3">
-            <Download className="w-3 h-3 mr-1.5" /> Export
-          </Button>
+          <NetworkTooltip show={!isOnline}>
+            <Button
+              variant="outline"
+              disabled={!isOnline}
+              aria-disabled={!isOnline}
+              className="border-slate-200 text-slate-600 rounded-xl text-xs h-8 px-3"
+            >
+              <Download className="w-3 h-3 mr-1.5" /> Export
+            </Button>
+          </NetworkTooltip>
         </CardHeader>
         <CardContent>
           {mockSettlements.length === 0 ? (

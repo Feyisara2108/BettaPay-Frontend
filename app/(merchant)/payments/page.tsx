@@ -22,11 +22,19 @@ import { useNotify } from '@/lib/hooks/useNotify';
 
 export default function PaymentsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [labelError, setLabelError] = useState('');
+  const [labelValue, setLabelValue] = useState('');
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!labelValue.trim()) {
+      setLabelError('Label is required');
+      return;
+    }
+    setLabelError('');
     notify.success('Payment link created successfully');
     setIsCreateOpen(false);
+    setLabelValue('');
   };
 
   const mockLinks = [
@@ -62,7 +70,16 @@ export default function PaymentsPage() {
             <form onSubmit={handleCreate} className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="label">Label</Label>
-                <Input id="label" placeholder="e.g. Consulting Retainer" className="bg-background/50 border-border/50 focus-visible:ring-brand-accent" required />
+                <Input 
+                  id="label" 
+                  placeholder="e.g. Consulting Retainer" 
+                  className="bg-background/50 border-border/50 focus-visible:ring-brand-accent"
+                  value={labelValue}
+                  onChange={(e) => setLabelValue(e.target.value)}
+                  aria-invalid={labelError ? "true" : "false"}
+                  aria-describedby={labelError ? "label-error" : undefined}
+                />
+                {labelError && <p id="label-error" className="text-xs text-red-500 mt-1">{labelError}</p>}
               </div>
 
               <div className="space-y-2">

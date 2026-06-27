@@ -23,7 +23,7 @@ import { Transaction } from '@/lib/mock/transactions';
 import { formatDate } from '@/lib/utils/format';
 import { CurrencyDisplay } from '@/components/shared/CurrencyDisplay';
 import { StatusBadge } from '@/components/shared/StatusBadge';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 
 interface TransactionDetailProps {
   transaction: Transaction | null;
@@ -32,6 +32,8 @@ interface TransactionDetailProps {
 }
 
 export const TransactionDetail: React.FC<TransactionDetailProps> = ({
+  // initialize notification hooks
+  const { success, info, error } = useNotify();
   transaction,
   isOpen,
   onClose,
@@ -40,7 +42,7 @@ export const TransactionDetail: React.FC<TransactionDetailProps> = ({
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    toast.success(`${label} copied to clipboard`);
+    success(`${label} copied to clipboard`);
   };
 
   const openExplorer = () => {
@@ -129,10 +131,10 @@ export const TransactionDetail: React.FC<TransactionDetailProps> = ({
 
         <DialogFooter className="flex flex-row gap-2 sm:justify-between">
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => toast.info('Receipt generation coming soon')}>
+            <Button variant="outline" size="sm" onClick={() => info('Receipt generation coming soon')}>
               <Download className="w-3.5 h-3.5 mr-2" /> Receipt
             </Button>
-            <Button variant="outline" size="sm" onClick={() => toast.info('Share functionality coming soon')}>
+            <Button variant="outline" size="sm" onClick={() => info('Share functionality coming soon')}>
               <Share2 className="w-3.5 h-3.5" />
             </Button>
           </div>

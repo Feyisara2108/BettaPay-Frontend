@@ -45,17 +45,14 @@ jest.mock('@/lib/api/axios', () => ({
 }));
 
 // Mock sonner toast
-jest.mock('sonner', () => ({
-  toast: {
-    success: jest.fn(),
-    error: jest.fn(),
-  },
+jest.mock('@/lib/hooks/useNotify', () => ({
+  useNotify: jest.fn()
 }));
 
 import LoginPage from '../login/page';
 import { useAuthStore } from '@/lib/store/authStore';
 import { apiClient } from '@/lib/api/axios';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 
 describe('Login Flow Integration Tests', () => {
   beforeEach(() => {
@@ -64,6 +61,11 @@ describe('Login Flow Integration Tests', () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ success: true }),
+    });
+    // Reset useNotify mock
+    (useNotify as jest.Mock).mockReturnValue({
+      success: jest.fn(),
+      error: jest.fn(),
     });
     // Reset Zustand auth state without triggering the real fetch in logout()
     useAuthStore.setState({
@@ -103,7 +105,8 @@ describe('Login Flow Integration Tests', () => {
       expect(state.role).toBe('merchant');
       expect(state.user?.email).toBe('merchant@example.com');
 
-      expect(toast.success).toHaveBeenCalledWith('Login successful');
+      const { success } = useNotify();
+      expect(success).toHaveBeenCalledWith('Login successful');
       expect(mockPush).toHaveBeenCalledWith('/dashboard');
     });
   });
@@ -162,7 +165,8 @@ describe('Login Flow Integration Tests', () => {
       expect(state.role).toBe('merchant');
       expect(state.user?.name).toBe('Web3 Merchant');
 
-      expect(toast.success).toHaveBeenCalledWith('Wallet connected & Logged in!');
+      const { success } = useNotify();
+      expect(success).toHaveBeenCalledWith('Wallet connected & Logged in!');
       expect(mockPush).toHaveBeenCalledWith('/dashboard');
     });
   });

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 
 import { registerSchema, RegisterFormValues } from '@/lib/utils/validation';
 import { useWalletStore } from '@/lib/store/walletStore';
@@ -28,6 +28,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isWalletLoading, setIsWalletLoading] = useState(false);
   const [walletOpen, setWalletOpen] = useState(false);
+  const { success, error } = useNotify();
 
   const {
     register,
@@ -52,11 +53,11 @@ export default function RegisterPage() {
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
 
-      toast.success('Account created successfully! Please log in.');
+      success('Account created successfully! Please log in.');
       router.push('/auth/login');
     } catch (err) {
       console.error(err);
-      toast.error('Failed to create account');
+      error('Failed to create account');
     } finally {
       setIsLoading(false);
     }
@@ -68,14 +69,14 @@ export default function RegisterPage() {
       await connect();
       const address = useWalletStore.getState().address;
       if (address) {
-        toast.success('Wallet connected! Redirecting...');
+        success('Wallet connected! Redirecting...');
         router.push('/dashboard');
       } else {
-        toast.error('Wallet connection was cancelled or Freighter is not installed.');
+        error('Wallet connection was cancelled or Freighter is not installed.');
       }
     } catch (err) {
       console.error(err);
-      toast.error('Failed to connect wallet');
+      error('Failed to connect wallet');
     } finally {
       setIsWalletLoading(false);
     }

@@ -13,7 +13,7 @@ import {
   Inbox,
 } from 'lucide-react';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 import { useAuthStore } from '@/lib/store/authStore';
 
 const mockTxHistory = [
@@ -30,8 +30,10 @@ export default function WalletPage() {
 
   const handleCopy = () => {
     navigator.clipboard.writeText(address);
-    toast.success('Address copied');
+    success('Address copied');
   };
+
+  const { success } = useNotify();
 
   return (
     <div className="space-y-8 pb-8">

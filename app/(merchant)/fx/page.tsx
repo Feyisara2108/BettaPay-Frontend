@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCcw, TrendingUp, TrendingDown, Info, Bell, BellRing, Trash2, Plus, ArrowRight, X } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 import {
   Select,
   SelectContent,
@@ -57,6 +57,7 @@ interface RateAlert {
 export default function FxRatesPage() {
   const [lastRefresh] = useState('Just now');
   const [alerts, setAlerts] = useState<RateAlert[]>([]);
+  const notify = useNotify();
   const [newPair, setNewPair] = useState('USDC/NGN');
   const [newCondition, setNewCondition] = useState<'above' | 'below'>('above');
   const [newTarget, setNewTarget] = useState('');
@@ -89,7 +90,7 @@ export default function FxRatesPage() {
             : currentRate <= alert.target;
           
           if (isTriggered) {
-            toast('Rate Alert Triggered!', {
+            notify.info('Rate Alert Triggered!', {
               description: `${alert.pair} is ${alert.condition} ₦${alert.target.toLocaleString()}. Current rate: ₦1,550`,
               icon: <BellRing className="w-4 h-4 text-amber-500" />,
               duration: 5000,
@@ -107,7 +108,7 @@ export default function FxRatesPage() {
 
   const handleCreateAlert = () => {
     if (!newTarget || isNaN(Number(newTarget))) {
-      toast.error('Please enter a valid target rate');
+      notify.error('Please enter a valid target rate');
       return;
     }
 
@@ -121,7 +122,7 @@ export default function FxRatesPage() {
 
     setAlerts([...alerts, alert]);
     setNewTarget('');
-    toast.success('Rate alert created');
+    notify.success('Rate alert created');
   };
 
   const toggleAlert = (id: string) => {
@@ -130,7 +131,7 @@ export default function FxRatesPage() {
 
   const deleteAlert = (id: string) => {
     setAlerts(alerts.filter(a => a.id !== id));
-    toast.info('Alert removed');
+    notify.info('Alert removed');
   };
 
   return (

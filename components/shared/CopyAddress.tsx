@@ -5,7 +5,7 @@ import { Copy, Check } from 'lucide-react';
 import { truncateAddress } from '@/lib/utils/format';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 
 interface CopyAddressProps {
   address: string;
@@ -20,7 +20,7 @@ export const CopyAddress = ({
   className,
   truncate = true 
 }: CopyAddressProps) => {
-  const [copied, setCopied] = useState(false);
+    const { success, error } = useNotify();
 
   const handleCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -28,11 +28,11 @@ export const CopyAddress = ({
     try {
       await navigator.clipboard.writeText(address);
       setCopied(true);
-      toast.success('Address copied to clipboard');
+      success('Address copied to clipboard');
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error(err);
-      toast.error('Failed to copy address');
+      error('Failed to copy address');
     }
   };
 

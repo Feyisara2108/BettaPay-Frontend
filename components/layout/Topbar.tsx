@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -22,12 +22,12 @@ interface TopbarProps {
 }
 
 export const Topbar = ({ onMenuClick, title }: TopbarProps) => {
-  const { user, logout } = useAuthStore();
+  const { success } = useNotify();
   const router = useRouter();
 
   const handleLogout = () => {
     logout();
-    toast.success('Logged out successfully');
+    success('Logged out successfully');
     router.push('/auth/login');
   };
 

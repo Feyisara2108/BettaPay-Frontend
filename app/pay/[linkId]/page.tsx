@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useWalletStore } from '@/lib/store/walletStore';
 import { CurrencyDisplay } from '@/components/shared/CurrencyDisplay';
 import { ArrowRight, QrCode } from 'lucide-react';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 import { Contract, rpc, TransactionBuilder, Networks, nativeToScVal } from '@stellar/stellar-sdk';
 import { signWithFreighter } from '@/lib/stellar/freighter';
 import { apiClient } from '@/lib/api/axios';
@@ -19,6 +19,7 @@ const WalletModal = dynamic(() => import('@/components/wallet/WalletModal').then
 export default function PaymentLinkPage() {
   const router = useRouter();
   const { isConnected, connect, address } = useWalletStore();
+  const { success, error } = useNotify();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   
   // Mock data for this link
@@ -36,7 +37,7 @@ export default function PaymentLinkPage() {
 
   const handleContinue = () => {
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
-      toast.error('Please enter a valid amount');
+      error('Please enter a valid amount');
       return;
     }
     setStep('review');
@@ -104,7 +105,7 @@ export default function PaymentLinkPage() {
     } catch (error: unknown) {
       console.error(error);
       const errorMessage = error instanceof Error ? error.message : 'Payment failed';
-      toast.error(errorMessage);
+      error(errorMessage);
     } finally {
       setIsProcessing(false);
     }

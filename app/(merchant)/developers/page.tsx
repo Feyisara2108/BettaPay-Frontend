@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { NetworkTooltip } from '@/components/ui/network-tooltip';
 import { Code2, Copy, Eye, EyeOff, Plus, RefreshCcw, Key, Globe, BookOpen, Zap, CheckCircle2, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 import {
   Select,
   SelectContent,
@@ -93,10 +93,11 @@ export default function DevelopersPage() {
   const [isSimulating, setIsSimulating] = useState(false);
   const [simulationResult, setSimulationResult] = useState<{ status: number; message: string } | null>(null);
   const isOnline = useOfflineStore((s) => s.isOnline);
+  const notify = useNotify();
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    toast.success(`${label} copied`);
+    notify.success('Copied to clipboard');
   };
 
   const handleSendTest = () => {
@@ -110,7 +111,7 @@ export default function DevelopersPage() {
         status: 200,
         message: 'Webhook delivered successfully'
       });
-      toast.success('Test webhook sent');
+      notify.success('Test webhook sent');
     }, 1500);
   };
 
@@ -188,7 +189,7 @@ export default function DevelopersPage() {
                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => handleCopy(`${key.prefix}EXAMPLE${key.suffix}`, 'API key')}>
                     <Copy className="w-3.5 h-3.5 text-slate-400" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => toast.info('Key rotation coming soon')}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => notify.info('Key rotation coming soon')}>
                     <RefreshCcw className="w-3.5 h-3.5 text-slate-400" />
                   </Button>
                 </div>

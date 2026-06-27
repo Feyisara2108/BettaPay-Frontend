@@ -34,8 +34,10 @@ import {
 } from 'recharts';
 import { useAuthStore } from '@/lib/store/authStore';
 import Link from 'next/link';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 import { cn } from '@/lib/utils';
+
+const notify = useNotify();
 
 const mockChartData = [
   { name: 'Mon', total: 1200, volume: 8400 },
@@ -95,7 +97,7 @@ export default function DashboardPage() {
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard');
+    notify.success('Copied to clipboard');
   };
 
   return (

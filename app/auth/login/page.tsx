@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { Loader2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 import dynamic from 'next/dynamic';
 
 import { loginSchema, LoginFormValues } from '@/lib/utils/validation';
@@ -32,6 +32,7 @@ export default function LoginPage() {
   const secondsRemaining = useRateLimitStore((s) => s.secondsRemaining);
   const tick = useRateLimitStore((s) => s.tick);
   const isRateLimited = rateLimitedUntil > Date.now();
+  const { success, error } = useNotify();
 
   // Tick the countdown every second while rate-limited
   useEffect(() => {
@@ -92,12 +93,12 @@ export default function LoginPage() {
 
       // Keep token in-memory for current session only (not persisted)
       login(mockToken, mockUser as import('@/lib/types').User);
-      toast.success('Login successful');
+      success('Login successful');
       
       router.push(role === 'admin' ? '/overview' : '/dashboard');
     } catch (err) {
       console.error(err);
-      toast.error('Failed to authenticate');
+      error('Failed to authenticate');
     } finally {
       setIsLoading(false);
     }
@@ -126,11 +127,10 @@ export default function LoginPage() {
         name: 'Web3 Merchant', 
         role 
       });
-      toast.success('Wallet connected & Logged in!');
-      router.push('/dashboard');
+      success('Wallet connected & Logged in!');
     } catch (err) {
       console.error(err);
-      toast.error('Failed to complete wallet-login flow');
+      error('Failed to complete wallet-login flow');
     } finally {
       setIsWalletLoading(false);
     }

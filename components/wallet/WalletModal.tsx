@@ -4,9 +4,10 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useWalletStore } from '@/lib/store/walletStore';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 
 export function WalletModal({ open, onOpenChange, onConnected }: { open: boolean; onOpenChange: (v: boolean) => void; onConnected?: (address: string) => void }) {
+  const { success, error } = useNotify();
   const connect = useWalletStore((s) => s.connect);
 
   const handleFreighter = async () => {
@@ -14,15 +15,15 @@ export function WalletModal({ open, onOpenChange, onConnected }: { open: boolean
       await connect('freighter');
       const address = useWalletStore.getState().address;
       if (address) {
-        toast.success('Connected with Freighter');
+        success('Connected with Freighter');
         onOpenChange(false);
         onConnected?.(address);
       } else {
-        toast.error('Freighter connected but no address available');
+        error('Freighter connected but no address available');
       }
     } catch (e) {
       console.error(e);
-      toast.error('Freighter connection failed');
+      error('Freighter connection failed');
     }
   };
 
@@ -32,15 +33,15 @@ export function WalletModal({ open, onOpenChange, onConnected }: { open: boolean
       await connect('walletconnect');
       const address = useWalletStore.getState().address;
       if (address) {
-        toast.success('Connected (WalletConnect placeholder)');
+        success('Connected (WalletConnect placeholder)');
         onOpenChange(false);
         onConnected?.(address);
       } else {
-        toast.error('WalletConnect connected but no address provided');
+        error('WalletConnect connected but no address provided');
       }
     } catch (e) {
       console.error(e);
-      toast.error('WalletConnect connection failed or cancelled');
+      error('WalletConnect connection failed or cancelled');
     }
   };
 

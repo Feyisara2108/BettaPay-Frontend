@@ -18,14 +18,14 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from 'sonner';
+import { useNotify } from '@/lib/hooks/useNotify';
 
 export default function PaymentsPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   const handleCreate = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Payment link created successfully');
+    notify.success('Payment link created successfully');
     setIsCreateOpen(false);
   };
 

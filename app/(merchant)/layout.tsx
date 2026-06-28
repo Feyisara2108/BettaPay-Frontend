@@ -1,4 +1,4 @@
-"use client";
+"use client"; // layout
 
 import { useState } from 'react';
 import { MerchantSidebar } from '@/components/layout/MerchantSidebar';
